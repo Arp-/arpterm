@@ -21,6 +21,7 @@ newaction {
 }
 --[[-------------------------------------------------------------------------]]--
 -- A solution contains projects, and defines the available configurations
+
 solution "arpterm"
 	configurations { "Debug", "Release" }
 
@@ -34,6 +35,7 @@ solution "arpterm"
 
 
 
+
 -- A project defines one build target
 	project "arpterm"
 		kind "ConsoleApp"
@@ -42,7 +44,7 @@ solution "arpterm"
 			inc_dir
 		}
 		files { 
-			inc_dir .. "**.h",
+			inc_dir .. "**.hpp",
 			src_dir .. "**.cpp"
 		}
 

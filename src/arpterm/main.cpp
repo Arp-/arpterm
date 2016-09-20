@@ -1,6 +1,7 @@
 
 
 #include <gtkmm.h>
+#include "arpterm/main_window.hpp"
 
 int main(int argc, char *argv[])
 {
@@ -8,8 +9,8 @@ int main(int argc, char *argv[])
     Gtk::Application::create(argc, argv,
       "org.gtkmm.examples.base");
 
-  Gtk::Window window;
-  window.set_default_size(200, 200);
+	arpterm::MainWindow window;
+  window.set_default_size(800, 600);
 
   return app->run(window);
 }
