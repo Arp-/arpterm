@@ -5,6 +5,19 @@
 namespace a = arpterm;
 
 
+//-----------------------------------------------------------------------------//
+static void
+set_n_init_text_buffer(Gtk::TextView& view) {
+	const auto text_buffer = view.get_buffer();
+	text_buffer->insert_at_cursor("macska");
+	text_buffer->insert_at_cursor("\n");
+	text_buffer->insert_at_cursor("kacsa\n");
+	text_buffer->insert_at_cursor("teszta");
+}
+//-----------------------------------------------------------------------------//
+//
+//
+//-----------------------------------------------------------------------------//
 a::MainWindow::MainWindow() {
 	init();
 }
@@ -16,22 +29,20 @@ a::MainWindow::~MainWindow() {
 void
 a::MainWindow::init() {
 	this->set_title("Macska");
-	this->add_n_init_text_view();
+	this->init_text_view_list();
+	this->notebook_.append_page(*(this->text_view_list_.front()));
+	this->add(this->notebook_);
 	this->show_all_children();
 }
 //-----------------------------------------------------------------------------//
-void
-a::MainWindow::add_n_init_text_view() {
-	this->set_n_init_text_buffer();
-	this->text_view_.set_editable(false);
-	this->add(this->text_view_);
-}
+//PRIVATES//
 //-----------------------------------------------------------------------------//
 void
-a::MainWindow::set_n_init_text_buffer() {
-	const auto text_buffer = this->text_view_.get_buffer();
-	text_buffer->insert_at_cursor("macska");
-	text_buffer->insert_at_cursor("\n");
-	text_buffer->insert_at_cursor("kacsa");
-
+a::MainWindow::init_text_view_list() {
+	this->text_view_list_.emplace_back(std::make_shared<Gtk::TextView>());
+	for (const auto view : this->text_view_list_) {
+		set_n_init_text_buffer(*view);
+	}
 }
+//-----------------------------------------------------------------------------//
+
