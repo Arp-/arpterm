@@ -34,8 +34,6 @@ solution "arpterm"
 		targetdir (bin_dir .. "release")
 
 
-
-
 -- A project defines one build target
 	project "arpterm"
 		kind "ConsoleApp"
@@ -44,21 +42,49 @@ solution "arpterm"
 			inc_dir
 		}
 		files { 
-			inc_dir .. "**.hpp",
-			src_dir .. "**.cpp"
+			inc_dir .. "arpterm/**.hpp",
+			src_dir .. "arpterm/**.cpp"
 		}
 
 		buildoptions {
 			"`pkg-config --cflags gtkmm-3.0`",
+			"-std=c++14"
 		}
 		linkoptions {
 			"`pkg-config --libs gtkmm-3.0`"
 		}
 
+		defines { "_XOPEN_SOURCE 600" }
+
 		configuration "Debug"
-		symbols "ON"
-		defines { "DEBUG" }
+			symbols "ON"
+			defines { "DEBUG" }
 
 		configuration "Release"
-		defines { "NDEBUG" }
-		flags { "Optimize" }
+			defines { "RELEASE" }
+			flags { "Optimize" }
+
+	project "generic_parser"
+		kind "staticLib"
+		language "C++"
+		includedirs {
+			inc_dir
+		}
+
+		excludes { 
+			src_dir .. "generic_parser/main.cpp"
+		}
+
+		files {
+			inc_dir .. "generic_parser/**.hpp",
+			src_dir .. "generic_parser/**.cpp",
+		}
+
+		configuration "Debug"
+			symbols "ON"
+			defines { "DEBUG" }
+
+		configuration "Release"
+			defines { "RELEASE" }
+			flags { "Optimize" }
+
