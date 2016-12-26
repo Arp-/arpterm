@@ -11,7 +11,7 @@
 #include <vector>
 #include <memory>
 
-#include "arpterm/util.hpp"
+//#include "arpterm/util.hpp"
 
 namespace arpterm {
 

@@ -2,7 +2,7 @@
 
 #include "arpterm/main_application.hpp"
 #include "arpterm/main_window.hpp"
-#include "arpterm/util.hpp"
+//#include "arpterm/util.hpp"
 
 
 #include <cassert>

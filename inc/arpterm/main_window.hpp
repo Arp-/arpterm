@@ -6,6 +6,8 @@
 #include <gtkmm/notebook.h>
 #include <gtkmm/viewport.h>
 
+#include "pty_widget/pty_widget.hpp"
+
 
 namespace arpterm {
 
@@ -17,23 +19,19 @@ namespace arpterm {
 
 			virtual ~MainWindow();
 
-			void new_tab();
+		protected: //-- pritected signal handlers --//
 
-			void close_tab(unsigned index);
+			bool on_key_pressed(GdkEventKey* ev_key);
 
 
 		private: //-- private functions --//
 
 			void init();
 
-			void init_text_view_list();
-
 
 		private: //-- private variables --//
 
-			Gtk::Notebook notebook_;
-
-			std::vector<std::shared_ptr<Gtk::TextView>> text_view_list_;
+			pty_widget::PtyWidget pty_;
 
 
 

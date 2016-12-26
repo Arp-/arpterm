@@ -6,18 +6,18 @@
 #include <memory>
 #include "arpterm/main_window.hpp"
 #include "arpterm/main_application.hpp"
-#include "arpterm/util.hpp"
+//#include "arpterm/util.hpp"
 #include "arpterm/pty_handler.hpp"
 
 
-namespace au = arpterm::util;
+//namespace au = arpterm::util;
 
 
 static std::unique_ptr<Gtk::Window> new_window_ref_ { nullptr };
 
 template <typename T, typename ...Args>
 inline Glib::RefPtr<T> make_ref (Args&& ...args) {
-	return Glib::RefPtr<T>(new T(args...));
+	return Glib::RefPtr<T>(new T(std::forward<Args>(args)...));
 }
 
 //-----------------------------------------------------------------------------//
@@ -41,7 +41,7 @@ int main(int argc, char *argv[]) {
 	printf("master_fd: %d\n", master_fd);
 	printf("slave_name: %s\n", slave_name);
 
-	while (true); // do some blocking to dunno
+//	while (true); // do some blocking to dunno
 
 
 
@@ -51,11 +51,11 @@ int main(int argc, char *argv[]) {
 
 //	Glib::signal_timeout().connect(sigc::bind(&timeout_handler,5), 2000);
 //
-//	auto& app = arpterm::MainAppBundle::get();
-//	app.init(argc,argv);
+	auto& app = arpterm::MainAppBundle::get();
+	app.init(argc,argv);
 //	Glib::signal_timeout().connect(sigc::ptr_fun(&make_new_window),5000);
 //
-//	return app.run();
+	return app.run();
 
 }
 

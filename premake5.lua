@@ -28,10 +28,14 @@ solution "arpterm"
 	configuration "Debug"
 		objdir (obj_dir .. "debug")
 		targetdir (bin_dir .. "debug")
+		symbols "ON"
+		defines { "DEBUG" }
 
 	configuration "Release"
 		objdir (obj_dir .. "release")
 		targetdir (bin_dir .. "release")
+		defines { "RELEASE" }
+		flags { "Optimize" }
 
 
 -- A project defines one build target
@@ -46,6 +50,10 @@ solution "arpterm"
 			src_dir .. "arpterm/**.cpp"
 		}
 
+		links { 
+			"pty_widget"
+		}
+
 		buildoptions {
 			"`pkg-config --cflags gtkmm-3.0`",
 			"-std=c++14"
@@ -56,14 +64,7 @@ solution "arpterm"
 
 		defines { "_XOPEN_SOURCE 600" }
 
-		configuration "Debug"
-			symbols "ON"
-			defines { "DEBUG" }
-
-		configuration "Release"
-			defines { "RELEASE" }
-			flags { "Optimize" }
-
+--[[-------------------------------------------------------------------------]]--
 	project "generic_parser"
 		kind "staticLib"
 		language "C++"
@@ -80,11 +81,30 @@ solution "arpterm"
 			src_dir .. "generic_parser/**.cpp",
 		}
 
-		configuration "Debug"
-			symbols "ON"
-			defines { "DEBUG" }
+--[[-------------------------------------------------------------------------]]--
+	project "pty_widget"
+		--kind "ConsoleApp"
+		kind "staticLib"
+		language "C++"
+		includedirs {
+			inc_dir
+		}
 
-		configuration "Release"
-			defines { "RELEASE" }
-			flags { "Optimize" }
+		buildoptions {
+			"`pkg-config --cflags gtkmm-3.0`",
+			"-std=c++14"
+		}
+		linkoptions {
+			"`pkg-config --libs gtkmm-3.0`"
+		}
+
+		excludes {
+			src_dir .. "pty_widget/test_main.cpp"
+		}
+
+		files { 
+			inc_dir .. "pty_widget/**.hpp",
+			src_dir .. "pty_widget/**.cpp",
+		}
+--[[-------------------------------------------------------------------------]]--
 
