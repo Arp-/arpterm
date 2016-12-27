@@ -2,9 +2,14 @@
 #ifndef GENERIC_PARSER_UTIL_HPP
 #define GENERIC_PARSER_UTIL_HPP
 
+#ifdef DEBUG
+#include <iostream>
+#endif
+
 namespace generic_parser {
 
 	namespace util {
+
 
 		template <typename T> 
 		bool vector_compare(
@@ -16,6 +21,15 @@ namespace generic_parser {
 				}
 			}
 			return true;
+		}
+
+		template <typename T>
+		void print_vec(const std::vector<T>& vec) {
+			std::cout << "vec: ";
+			for (const auto& elem : vec) {
+				std::cout << elem << " ";
+			}
+			std::cout << std::endl;
 		}
 
 	} // namespace util

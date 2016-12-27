@@ -9,11 +9,16 @@
 
 namespace generic_parser {
 
-	template <typename Param>
+	enum class ec {
+		OK = 0,
+		FAIL = 1
+	};
+
+	template <typename Param, typename char_T = char>
 	class command_parser_t {
 
 		typedef void(*param_func_t)(Param&);
-		using char_vec_t = std::vector<char>;
+		using char_vec_t = std::vector<char_T>;
 		using com_vec_t = std::vector<std::pair<char_vec_t, param_func_t>>;
 
 		public: //-- public functions --//
@@ -34,22 +39,30 @@ namespace generic_parser {
 
 			}
 
-			void add_command(char_vec_t&& com, param_func_t func) {
+			inline void add_command(char_vec_t&& com, param_func_t func) {
 				this->command_vec_.emplace_back(std::make_pair(com, func));
 			}
 
-			void parse(const char sign) {
+			ec parse(const char_T sign) {
 				curr_buff_.emplace_back(sign);
 				depth_++;
+				bool found = false;
 				for (const auto& elem : command_vec_) {
 					const auto& com_str = elem.first;
-					if (com_str.size() == depth_
-							&& util::vector_compare(
-								this->curr_buff_, com_str, this->depth_)) {
-						elem.second(this->param_);
-						this->clear_state();
+					if (util::vector_compare(this->curr_buff_, com_str, this->depth_)) {
+						found = true;
+						if (com_str.size() == depth_) {
+							elem.second(this->param_);
+							this->clear_state();
+						}
 					}
 				}
+				if (found) {
+					return ec::OK;
+				}
+				// we couldn't partially parse anityhing
+				this->clear_state();
+				return ec::FAIL;
 			}
 
 		private: //-- private functions --//

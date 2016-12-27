@@ -1,5 +1,4 @@
 
-
 #include "pty_widget/pty_widget.hpp"
 #include <utility>
 
@@ -10,21 +9,37 @@
 namespace pw = pty_widget;
 
 //-----------------------------------------------------------------------------//
+static void new_line_handler(pw::PtyWidget& pw) {
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+}
+//-----------------------------------------------------------------------------//
+static void char_a_handler(pw::PtyWidget& pw) {
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+}
+//-----------------------------------------------------------------------------//
+static void macska_handler(pw::PtyWidget& pw) {
+	std::cout << __PRETTY_FUNCTION__ << std::endl;
+}
+//-----------------------------------------------------------------------------//
 pw::PtyWidget::PtyWidget() :
 		Glib::ObjectBase("PtyWidget"),
-		Gtk::Widget() { 
+		Gtk::Widget(),
+		buffer_(),
+		xterm_stm_(*this) { 
 	this->set_has_window(false); // this is important!!!
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
+	this->xterm_stm_.add_command({'\n'}, &new_line_handler);
+	this->xterm_stm_.add_command({'\r'}, &new_line_handler);
+	this->xterm_stm_.add_command({'m', 'a', 'c', 's', 'k', 'a'}, &macska_handler);
+	this->xterm_stm_.add_command({'a'}, &char_a_handler);
+
 }
 //-----------------------------------------------------------------------------//
 pw::PtyWidget::~PtyWidget() {
 
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 //-----------------------------------------------------------------------------//
 Gtk::SizeRequestMode
 pw::PtyWidget::get_request_mode_vfunc() const {
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	return Gtk::Widget::get_request_mode_vfunc();
 }
 //-----------------------------------------------------------------------------//
@@ -32,7 +47,6 @@ void
 pw::PtyWidget::get_preferred_width_vfunc(
 		int& min_width, int& nat_width) const {
 
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	min_width = 10;
 	nat_width = 800;
 
@@ -45,7 +59,6 @@ pw::PtyWidget::get_preferred_height_vfunc(
 	min_height = 10;
 	nat_height = 600;
 
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 //-----------------------------------------------------------------------------//
 void
@@ -55,7 +68,6 @@ pw::PtyWidget::get_preferred_width_for_height_vfunc(
 	min_width = 10;
 	nat_width = 800;
 
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 //-----------------------------------------------------------------------------//
 void
@@ -65,7 +77,6 @@ pw::PtyWidget::get_preferred_height_for_width_vfunc(
 	min_height = 10;
 	nat_height = 600;
 
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 //-----------------------------------------------------------------------------//
 void
@@ -73,38 +84,32 @@ pw::PtyWidget::on_size_allocate(Gtk::Allocation& allocation) {
 
 	this->set_allocation(allocation);
 
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 //-----------------------------------------------------------------------------//
 void
 pw::PtyWidget::on_map() {
 	Gtk::Widget::on_map();
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 //-----------------------------------------------------------------------------//
 void
 pw::PtyWidget::on_unmap() {
 	Gtk::Widget::on_unmap();
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 //-----------------------------------------------------------------------------//
 void
 pw::PtyWidget::on_realize() {
 	Gtk::Widget::on_realize();
 	//this->set_realized();
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 //-----------------------------------------------------------------------------//
 void
 pw::PtyWidget::on_unrealize() {
 	Gtk::Widget::on_unrealize();
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 }
 //-----------------------------------------------------------------------------//
 bool
 pw::PtyWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	const Gtk::Allocation alloc = this->get_allocation();
 	const auto& width  = alloc.get_width();
 	const auto& height = alloc.get_height();
@@ -143,9 +148,10 @@ static void print_buffer(const Glib::ustring ustr) {
 }
 //-----------------------------------------------------------------------------//
 void
-pw::PtyWidget::on_input_received(gunichar unichar) {
-this->buffer_.push_back(unichar);
-print_buffer(this->buffer_);
-this->queue_draw();
+pw::PtyWidget::on_input_received(uint32_t unichar) {
+	this->xterm_stm_.parse(unichar);
+	
+	print_buffer(this->buffer_);
+	this->queue_draw();
 }
 //-----------------------------------------------------------------------------//

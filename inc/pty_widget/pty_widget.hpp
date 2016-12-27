@@ -4,6 +4,7 @@
 
 #include <gtkmm/widget.h>
 #include "arpterm/unicode.hpp"
+#include "generic_parser/command.hpp"
 
 namespace au = arpterm::unicode;
 
@@ -57,12 +58,16 @@ namespace pty_widget {
 
 			void on_output_received(const std::string& output);
 
-			void on_input_received(gunichar unichar);
+			void on_input_received(uint32_t unichar);
 
 
 		private: //-- private members --//
 
 			Glib::ustring buffer_;
+
+			generic_parser::command_parser_t<PtyWidget, uint32_t> xterm_stm_;
+
+
 
 
 
