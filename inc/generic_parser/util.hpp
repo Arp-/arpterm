@@ -27,7 +27,7 @@ namespace generic_parser {
 		void print_vec(const std::vector<T>& vec) {
 			std::cout << "vec: ";
 			for (const auto& elem : vec) {
-				std::cout << elem << " ";
+				std::cout << (char32_t)elem << " ";
 			}
 			std::cout << std::endl;
 		}

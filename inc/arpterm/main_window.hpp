@@ -23,13 +23,9 @@ namespace arpterm {
 
 			bool on_key_pressed(GdkEventKey* ev_key);
 
-			bool on_button_pressed(GdkEventButton* ev_key);
-
-			bool on_mnemonic_pressed(bool ev_key);
-
-			bool on_enter_notify(GdkEventCrossing* ev_key);
-
 			bool on_event(GdkEvent* ev_key);
+
+			bool on_configure_event(GdkEventConfigure* ev);
 
 
 		private: //-- private functions --//

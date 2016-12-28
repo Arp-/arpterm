@@ -13,10 +13,14 @@ namespace pty_widget {
 
 	class PtyWidget : public Gtk::Widget {
 
-		private: //-- private typedefs --//
+		public: //-- private typedefs --//
 			
 			using sig_cb_t = sigc::slot<void(const std::string&)>;
 			using sigh_t = sigc::signal<void(const std::string&)>;
+			using comm_parser_t = 
+				generic_parser::command_parser_t<PtyWidget, uint32_t>;
+			using char_vec_t = comm_parser_t::char_vec_t;
+			using parser_cb_t = comm_parser_t::param_func_t;
 
 
 		public: //-- public functions --//
@@ -54,21 +58,32 @@ namespace pty_widget {
 
 			bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
+
 		public: //-- io handlers --//
 
 			void on_output_received(const std::string& output);
 
 			void on_input_received(uint32_t unichar);
 
+		private: //-- private functions --//
+
+			void push_back(uint32_t unichar); // well this is actually relatively okay
+
 
 		private: //-- private members --//
 
 			Glib::ustring buffer_;
 
-			generic_parser::command_parser_t<PtyWidget, uint32_t> xterm_stm_;
+			comm_parser_t xterm_stm_;
 
 
 
+
+		private: //-- handler functions --//
+
+			static void new_line_handler(PtyWidget& pw, const char_vec_t& cv);
+			static void backspace_handler(PtyWidget& pw, const char_vec_t& cv);
+			static void trap_handler(PtyWidget& pw, const char_vec_t& cv);
 
 
 

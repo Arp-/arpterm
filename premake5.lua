@@ -72,13 +72,14 @@ solution "arpterm"
 			inc_dir
 		}
 
-		excludes { 
-			src_dir .. "generic_parser/main.cpp"
-		}
 
 		files {
 			inc_dir .. "generic_parser/**.hpp",
 			src_dir .. "generic_parser/**.cpp",
+		}
+
+		excludes { 
+			src_dir .. "generic_parser/main.cpp"
 		}
 
 --[[-------------------------------------------------------------------------]]--
@@ -98,13 +99,14 @@ solution "arpterm"
 			"`pkg-config --libs gtkmm-3.0`"
 		}
 
-		excludes {
-			src_dir .. "pty_widget/test_main.cpp"
-		}
 
 		files { 
 			inc_dir .. "pty_widget/**.hpp",
 			src_dir .. "pty_widget/**.cpp",
+		}
+		-- SO EXCULUDES MUST BE AFTER FILES
+		excludes {
+			src_dir .. "pty_widget/test_main.cpp"
 		}
 --[[-------------------------------------------------------------------------]]--
 
