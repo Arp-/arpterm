@@ -51,7 +51,8 @@ solution "arpterm"
 		}
 
 		links { 
-			"pty_widget"
+			"pty_widget",
+			"pthread",
 		}
 
 		buildoptions {

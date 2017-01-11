@@ -6,8 +6,6 @@
 #include "arpterm/unicode.hpp"
 #include "generic_parser/command.hpp"
 
-namespace au = arpterm::unicode;
-
 namespace pty_widget {
 
 

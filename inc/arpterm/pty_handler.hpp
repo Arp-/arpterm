@@ -10,9 +10,15 @@ namespace arpterm {
 	namespace pty {
 
 		// returns the fildescriptor of pty
-		int pty_open();
+//		int pty_open();
+//
+//		int get_pts(int pty_master_fd, char* pts_name, size_t pts_len);
 
-		int get_pts(int pty_master_fd, char* pts_name, size_t pts_len);
+		// returns master-fd, for gtkmm
+		int start_pt_master_slave();
+
+		int stop_all();
+
 
 
 	} // namespace pty

@@ -49,6 +49,7 @@ namespace arpterm {
 
 			std::vector<std::unique_ptr<Gtk::TextView>> tab_vec_;
 
+
 	};
 
 } // namespace arpterm
