@@ -1,6 +1,7 @@
 
 
 #include "arpterm/main_window.hpp"
+#include "arpterm/main_application.hpp"
 #include "arpterm/unicode.hpp"
 #include <cstdint>
 #include <cstdlib>
@@ -12,7 +13,7 @@ namespace a = arpterm;
 
 
 //-----------------------------------------------------------------------------//
-a::MainWindow::MainWindow() {
+a::MainWindow::MainWindow(size_t index): index_(index) {
 	init();
 }
 //-----------------------------------------------------------------------------//
@@ -34,6 +35,11 @@ a::MainWindow::init() {
 	this->set_title("arpterm");
 	this->add(pty_);
 	this->show_all_children();
+}
+//-----------------------------------------------------------------------------//
+void
+a::MainWindow::write(const char* msg, size_t len) {
+	MainAppBundle::get().write(this->index_, msg, len);
 }
 //-----------------------------------------------------------------------------//
 //PROTECED//

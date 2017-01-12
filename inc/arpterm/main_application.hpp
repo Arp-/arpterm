@@ -25,7 +25,9 @@ namespace arpterm {
 
 			static MainAppBundle& get();
 
-			void init(int argc, char* argv[]);
+			void init(int argc, char* argv[],int master_fd);
+
+			void write(int index, const char* msg, size_t len);
 
 			int run();
 
@@ -47,7 +49,7 @@ namespace arpterm {
 
 			std::vector<std::unique_ptr<Gtk::Window>> window_vec_;
 
-			std::vector<std::unique_ptr<Gtk::TextView>> tab_vec_;
+			std::vector<int> ptm_vec_;
 
 
 	};

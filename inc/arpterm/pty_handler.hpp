@@ -19,6 +19,8 @@ namespace arpterm {
 
 		int stop_all();
 
+		int stop(int master_fd);
+
 
 
 	} // namespace pty

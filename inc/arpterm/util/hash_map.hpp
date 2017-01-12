@@ -81,7 +81,7 @@ namespace arpterm { namespace util {
 
 			inline int set(const key_T& key, const val_T& val) noexcept {
 				int i = this->get_first_unset_unique_index(key);
-				if (i < 0) { i; }
+				if (i < 0) { return i; }
 				this->key_container_[i] = key;
 				this->val_container_[i] = val;
 				this->set_container_[i] = true;
@@ -138,7 +138,6 @@ namespace arpterm { namespace util {
 			set_container_t set_container_;
 
 	};
-
 
 
 

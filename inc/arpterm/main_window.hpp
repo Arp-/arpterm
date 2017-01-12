@@ -15,7 +15,7 @@ namespace arpterm {
 
 		public: //-- public functions --//
 
-			MainWindow();
+			MainWindow(size_t index);
 
 			virtual ~MainWindow();
 
@@ -32,10 +32,14 @@ namespace arpterm {
 
 			void init();
 
+			void write(const char* msg, size_t len);
+
 
 		private: //-- private variables --//
 
 			pty_widget::PtyWidget pty_;
+
+			size_t index_;
 
 
 
