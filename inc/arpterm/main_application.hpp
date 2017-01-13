@@ -25,9 +25,7 @@ namespace arpterm {
 
 			static MainAppBundle& get();
 
-			void init(int argc, char* argv[],int master_fd);
-
-			void write(int index, const char* msg, size_t len);
+			void init(int argc, char* argv[]);
 
 			int run();
 

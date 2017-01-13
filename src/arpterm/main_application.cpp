@@ -18,12 +18,10 @@ at::MainAppBundle& at::MainAppBundle::get() {
 }
 //-----------------------------------------------------------------------------//
 void
-at::MainAppBundle::init(int argc, char* argv[], int master_fd) {
+at::MainAppBundle::init(int argc, char* argv[]) {
 	this->app_ = Gtk::Application::create(argc, argv, "org.gtkmm.examples.base");
 	this->window_vec_.reserve(1000);
-	this->ptm_vec_.reserve(1000);
-	this->window_vec_.emplace_back(new at::MainWindow {this->window_vec_.size()});
-	this->ptm_vec_.emplace_back(master_fd);
+	this->window_vec_.emplace_back(new at::MainWindow {});
 }
 //-----------------------------------------------------------------------------//
 int
@@ -38,7 +36,7 @@ at::MainAppBundle::run() {
 //-----------------------------------------------------------------------------//
 Gtk::Window&
 at::MainAppBundle::add_new_window() {
-	this->window_vec_.emplace_back(new at::MainWindow {this->window_vec_.size()});
+	this->window_vec_.emplace_back(new at::MainWindow {});
 	auto& window = *(this->window_vec_.back());
 	this->app_->add_window(window);
 	return window;
@@ -47,10 +45,6 @@ at::MainAppBundle::add_new_window() {
 void
 at::MainAppBundle::add_n_show_new_window() {
 	this->add_new_window().show();
-}
-//-----------------------------------------------------------------------------//
-void at::MainAppBundle::write(int index, const char* msg, size_t len) {
-	write(this->ptm_vec_[index], msg, len);
 }
 
 

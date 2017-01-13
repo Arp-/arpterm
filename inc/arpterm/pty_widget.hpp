@@ -5,8 +5,9 @@
 #include <gtkmm/widget.h>
 #include "arpterm/unicode.hpp"
 #include "generic_parser/command.hpp"
+#include "arpterm/util/type.hpp"
 
-namespace pty_widget {
+namespace arpterm {
 
 
 	class PtyWidget : public Gtk::Widget {
@@ -57,22 +58,25 @@ namespace pty_widget {
 			bool on_draw(const Cairo::RefPtr<Cairo::Context>& cr) override;
 
 
+		protected: //-- proctected fd_signal_reader --//
+
+			bool do_fd_read();
+
+
 		public: //-- io handlers --//
 
-			void on_output_received(const std::string& output);
-
 			void on_input_received(uint32_t unichar);
-
-		private: //-- private functions --//
-
-			void push_back(uint32_t unichar); // well this is actually relatively okay
 
 
 		private: //-- private members --//
 
-			Glib::ustring buffer_;
+			Glib::ustring recv_buffer_;
+
+			Glib::ustring command_buffer_;
 
 			comm_parser_t xterm_stm_;
+
+			arpterm::util::type::fd_t master_fd_;
 
 
 

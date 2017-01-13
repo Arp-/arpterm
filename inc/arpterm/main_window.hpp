@@ -6,7 +6,7 @@
 #include <gtkmm/notebook.h>
 #include <gtkmm/viewport.h>
 
-#include "pty_widget/pty_widget.hpp"
+#include "arpterm/pty_widget.hpp"
 
 
 namespace arpterm {
@@ -15,7 +15,7 @@ namespace arpterm {
 
 		public: //-- public functions --//
 
-			MainWindow(size_t index);
+			MainWindow();
 
 			virtual ~MainWindow();
 
@@ -32,14 +32,10 @@ namespace arpterm {
 
 			void init();
 
-			void write(const char* msg, size_t len);
-
 
 		private: //-- private variables --//
 
-			pty_widget::PtyWidget pty_;
-
-			size_t index_;
+			arpterm::PtyWidget pty_;
 
 
 

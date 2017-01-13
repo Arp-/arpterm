@@ -47,15 +47,12 @@ static bool handle_read(int master_fd) {
 //-----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
 
-	int master_fd = ap::start_pt_master_slave();
 
-
-	Glib::signal_timeout().connect(sigc::bind(&handle_read, master_fd), 2000);
 
 	//Glib::signal_timeout().connect(sigc::bind(&close_handler, master_fd), 1000);
 
 	auto& app = arpterm::MainAppBundle::get();
-	app.init(argc,argv, master_fd);
+	app.init(argc,argv);
 	return app.run();
 
 }

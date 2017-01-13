@@ -7,6 +7,7 @@
 #include "arpterm/util/termios.hpp"
 #include "arpterm/util/wait.hpp"
 #include "arpterm/util/hash_map.hpp"
+#include "arpterm/util/type.hpp"
 
 
 #include <cstring>
@@ -16,11 +17,11 @@
 
 namespace ap = arpterm::pty;
 namespace au = arpterm::util;
+namespace aut = au::type;
 
-typedef int fd_t; // filedescriptor_type
 
 typedef struct {
-	fd_t master_fd;
+	aut::fd_t master_fd;
 	pid_t pid;
 } thread_list_elem_t;
 
@@ -28,16 +29,16 @@ typedef struct {
 
 #define ARPTERM_MAX_THREAD_NUM 1024
 //----------------------------------------------------------------------------//
-static au::hash_map<fd_t, pid_t, ARPTERM_MAX_THREAD_NUM> thread_list_;
+static au::hash_map<aut::fd_t, pid_t, ARPTERM_MAX_THREAD_NUM> thread_list_;
 
-static std::array<fd_t, ARPTERM_MAX_THREAD_NUM> thread_free_list_;
+static std::array<aut::fd_t, ARPTERM_MAX_THREAD_NUM> thread_free_list_;
 //-----------------------------------------------------------------------------//
 inline void err_exit(const char* errmsg) {
 	perror(errmsg);
 	exit(1);
 }
 //-----------------------------------------------------------------------------//
-inline void errno_save_n_close(fd_t fd) {
+inline void errno_save_n_close(aut::fd_t fd) {
 	int saved_errno = errno;
 	close(fd);
 	errno = saved_errno;
@@ -62,7 +63,7 @@ static int pty_open() {
 	return master_fd;
 }
 //-----------------------------------------------------------------------------//
-static int get_pts(fd_t master_fd, char* slave_name, size_t sn_len) {
+static int get_pts(aut::fd_t master_fd, char* slave_name, size_t sn_len) {
 	char* p = ptsname(master_fd);
 	if (p == nullptr) {
 		errno_save_n_close(master_fd);
@@ -83,7 +84,8 @@ static void sighup_trap(int sig) {
 	exit(0);
 }
 //-----------------------------------------------------------------------------//
-static int start_new_slave_thread(fd_t master_fd, const char* slave_name, size_t slave_len, struct termios* term) {
+static int start_new_slave_thread(
+		aut::fd_t master_fd, const char* slave_name, size_t slave_len, struct termios* term) {
 
 	int sid = setsid();
 	if (sid == -1) {

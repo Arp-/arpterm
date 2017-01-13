@@ -51,7 +51,6 @@ solution "arpterm"
 		}
 
 		links { 
-			"pty_widget",
 			"pthread",
 		}
 
@@ -82,32 +81,3 @@ solution "arpterm"
 		excludes { 
 			src_dir .. "generic_parser/main.cpp"
 		}
-
---[[-------------------------------------------------------------------------]]--
-	project "pty_widget"
-		--kind "ConsoleApp"
-		kind "staticLib"
-		language "C++"
-		includedirs {
-			inc_dir
-		}
-
-		buildoptions {
-			"`pkg-config --cflags gtkmm-3.0`",
-			"-std=c++14"
-		}
-		linkoptions {
-			"`pkg-config --libs gtkmm-3.0`"
-		}
-
-
-		files { 
-			inc_dir .. "pty_widget/**.hpp",
-			src_dir .. "pty_widget/**.cpp",
-		}
-		-- SO EXCULUDES MUST BE AFTER FILES
-		excludes {
-			src_dir .. "pty_widget/test_main.cpp"
-		}
---[[-------------------------------------------------------------------------]]--
-
