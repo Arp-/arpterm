@@ -2,7 +2,6 @@
 
 #include "arpterm/main_window.hpp"
 #include "arpterm/main_application.hpp"
-#include "arpterm/unicode.hpp"
 #include <cstdint>
 #include <cstdlib>
 #ifdef DEBUG
@@ -41,8 +40,7 @@ a::MainWindow::init() {
 //-----------------------------------------------------------------------------//
 bool
 a::MainWindow::on_key_pressed(GdkEventKey* ev_key) {
-	using a::unicode::unicode_type;
-	uint32_t uc = gdk_keyval_to_unicode(ev_key->keyval);
+	gunichar uc = gdk_keyval_to_unicode(ev_key->keyval);
 	const auto& st = ev_key->state;
 	if (GDK_SHIFT_MASK & st) {
 		std::cout << "shift" << std::endl;

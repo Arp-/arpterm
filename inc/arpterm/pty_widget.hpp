@@ -3,7 +3,6 @@
 #define ARPTERM_PTY_WIDGET_PTY_WIDGET_HPP
 
 #include <gtkmm/widget.h>
-#include "arpterm/unicode.hpp"
 #include "generic_parser/command.hpp"
 #include "arpterm/util/type.hpp"
 
@@ -12,6 +11,8 @@ namespace arpterm {
 
 	class PtyWidget : public Gtk::Widget {
 
+		friend class XtermHandler;
+
 		public: //-- private typedefs --//
 			
 			using sig_cb_t = sigc::slot<void(const std::string&)>;
@@ -19,6 +20,7 @@ namespace arpterm {
 			using comm_parser_t = 
 				generic_parser::command_parser_t<PtyWidget, uint32_t>;
 			using char_vec_t = comm_parser_t::char_vec_t;
+			using com_vec_t = comm_parser_t::com_vec_t;
 			using parser_cb_t = comm_parser_t::param_func_t;
 
 
@@ -74,18 +76,16 @@ namespace arpterm {
 
 			Glib::ustring command_buffer_;
 
-			comm_parser_t xterm_stm_;
+			comm_parser_t xterm_in_stm_;
+
+			comm_parser_t xterm_out_stm_;
 
 			arpterm::util::type::fd_t master_fd_;
 
 
 
 
-		private: //-- handler functions --//
 
-			static void new_line_handler(PtyWidget& pw, const char_vec_t& cv);
-			static void backspace_handler(PtyWidget& pw, const char_vec_t& cv);
-			static void trap_handler(PtyWidget& pw, const char_vec_t& cv);
 
 
 

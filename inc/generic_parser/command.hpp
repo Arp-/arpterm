@@ -5,6 +5,7 @@
 #include <iostream>
 #include <vector>
 #include <type_traits>
+#include <cstdint>
 #include "generic_parser/util.hpp"
 
 namespace generic_parser {
@@ -14,7 +15,7 @@ namespace generic_parser {
 		FAIL = 1
 	};
 
-	template <typename Param, typename char_T = char>
+	template <typename Param, typename char_T = uint8_t>
 	class command_parser_t {
 
 		public: //-- public types --//
@@ -24,12 +25,13 @@ namespace generic_parser {
 
 		public: //-- public functions --//
 
-			inline command_parser_t(Param& param, com_vec_t&& vec):
+			inline command_parser_t(
+							Param& param, com_vec_t&& vec, param_func_t&& trap_callback):
 					depth_(0),
 					param_(param),
 					curr_buff_(),
 					command_vec_(vec),
-					trap_callback_(nullptr) {
+					trap_callback_(trap_callback) {
 
 			}
 
@@ -52,8 +54,9 @@ namespace generic_parser {
 				this->trap_callback_ = func;
 			}
 
+
 			ec parse(const char_T sign) {
-				this->curr_buff_.emplace_back(sign);
+				this->curr_buff_.emplace_back(sign & 0xff);
 				this->depth_++;
 				bool found = false;
 				for (const auto& elem : this->command_vec_) {

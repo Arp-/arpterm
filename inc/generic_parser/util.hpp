@@ -10,7 +10,6 @@ namespace generic_parser {
 
 	namespace util {
 
-
 		template <typename T> 
 		bool vector_compare(
 				const std::vector<T>& lhs, const std::vector<T>& rhs, size_t depth) {

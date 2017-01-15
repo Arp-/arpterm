@@ -2,6 +2,8 @@
 #include "arpterm/pty_widget.hpp"
 #include "arpterm/pty_handler.hpp"
 #include "generic_parser/util.hpp"
+#include "arpterm/xterm_handler.hpp"
+#include "arpterm/util/util.hpp"
 #include <utility>
 #include <glibmm.h>
 
@@ -11,56 +13,20 @@
 
 namespace a = arpterm;
 namespace ap = arpterm::pty;
+namespace au = arpterm::util;
 namespace gpu = generic_parser::util;
 
-//-----------------------------------------------------------------------------//
-void 
-a::PtyWidget::new_line_handler(a::PtyWidget& pw,
-		const a::PtyWidget::char_vec_t& cv) {
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
-	auto& com_buf = pw.command_buffer_;
-	com_buf.push_back('\n');
-	write(pw.master_fd_, com_buf.data(), com_buf.size());
-	com_buf.erase();
-	gpu::print_vec(cv);
-}
-//-----------------------------------------------------------------------------//
-void 
-a::PtyWidget::backspace_handler(a::PtyWidget& pw, 
-		const a::PtyWidget::char_vec_t& cv) {
-	auto& com_buf = pw.command_buffer_;
-	if (!com_buf.empty()) {
-		com_buf.erase(com_buf.size() -1, 1);
-	}
-}
-//-----------------------------------------------------------------------------//
-void 
-a::PtyWidget::trap_handler(a::PtyWidget& pw, 
-		const a::PtyWidget::char_vec_t& cv) {
-	std::cout << "TRAP FUNCTION" << std::endl;
-	gpu::print_vec(cv);
-	auto& com_buf = pw.command_buffer_;
-	for (const auto& ch : cv) {
-		if (ch) {
-			com_buf.push_back(ch);
-		}
-	}
-}
-//-----------------------------------------------------------------------------//
 a::PtyWidget::PtyWidget() :
 		Glib::ObjectBase("PtyWidget"),
 		Gtk::Widget(),
 		recv_buffer_(),
 		command_buffer_(),
-		xterm_stm_(*this),
+		xterm_in_stm_(*this,
+				XtermHandler::in::callback_list(), &XtermHandler::in::trap_handler),
+		xterm_out_stm_(*this,
+				XtermHandler::out::callback_list(), &XtermHandler::out::trap_handler),
 		master_fd_(0) { 
 	this->set_has_window(false); // this is important!!!
-	this->xterm_stm_.add_command({'\n'}, &new_line_handler);
-	this->xterm_stm_.add_command({'\r'}, &new_line_handler);
-	this->xterm_stm_.add_command({'\b'}, &backspace_handler);
-	//this->xterm_stm_.add_command({'m', 'a', 'c', 's', 'k', 'a'}, &macska_handler);
-	//this->xterm_stm_.add_command({'a'}, &char_a_handler);
-	this->xterm_stm_.set_trap(&trap_handler);
 	this->master_fd_ = ap::start_pt_master_slave();
 	Glib::signal_timeout().connect(
 			sigc::mem_fun(this, &a::PtyWidget::do_fd_read), 100);
@@ -193,7 +159,13 @@ a::PtyWidget::do_fd_read() {
 		// TODO close parent
 		return false;
 	}
-	this->recv_buffer_.append(static_cast<const char*>(buf), len);
+	printf("buffer: \n");
+	au::print_hex(buf, len);
+	for (size_t i = 0; i < len; i++) {
+		this->xterm_out_stm_.parse(buf[i] & 0xff);
+		//this->recv_buffer_.push_back(buf[i]);
+	}
+	//this->recv_buffer_.append(static_cast<const char*>(buf), len);
 	this->queue_draw();
 	return true;
 }
@@ -207,7 +179,7 @@ static void print_buffer(const Glib::ustring ustr) {
 //-----------------------------------------------------------------------------//
 void
 a::PtyWidget::on_input_received(uint32_t unichar) {
-	this->xterm_stm_.parse(unichar);
+	this->xterm_in_stm_.parse(unichar);
 
 	print_buffer(this->command_buffer_);
 	this->queue_draw();
