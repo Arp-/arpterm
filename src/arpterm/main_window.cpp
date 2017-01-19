@@ -1,7 +1,8 @@
-
+// アイカン ヂグラフ
 
 #include "arpterm/main_window.hpp"
 #include "arpterm/main_application.hpp"
+#include "arpterm/control_character_layer.hpp"
 #include <cstdint>
 #include <cstdlib>
 #ifdef DEBUG
@@ -42,12 +43,8 @@ bool
 a::MainWindow::on_key_pressed(GdkEventKey* ev_key) {
 	gunichar uc = gdk_keyval_to_unicode(ev_key->keyval);
 	const auto& st = ev_key->state;
-	if (GDK_SHIFT_MASK & st) {
-		std::cout << "shift" << std::endl;
-	} if (GDK_CONTROL_MASK & st) {
-		std::cout << "control" << std::endl;
-	}
-	this->pty_.on_input_received(uc);
+	// TODO make a ctrl-c,d etc. --> to ascii conversation layer
+	this->pty_.on_input_received(a::control_character_layer(st, uc));
 	return false;
 }
 //-----------------------------------------------------------------------------//

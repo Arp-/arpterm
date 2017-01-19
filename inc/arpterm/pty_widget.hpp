@@ -3,8 +3,11 @@
 #define ARPTERM_PTY_WIDGET_PTY_WIDGET_HPP
 
 #include <gtkmm/widget.h>
+#include <gdkmm/color.h>
 #include "generic_parser/command.hpp"
 #include "arpterm/util/type.hpp"
+#include "arpterm/default.hpp"
+#include "arpterm/util/rgba_t.hpp"
 
 namespace arpterm {
 
@@ -12,6 +15,17 @@ namespace arpterm {
 	class PtyWidget : public Gtk::Widget {
 
 		friend class XtermHandler;
+
+		// Stores the state fo the widget, like
+		// colors etc
+		// NOTE for bg_color use style_context??
+		//
+		struct state {
+			state();
+			~state() = default;
+			arpterm::util::rgba_t font_color;
+			arpterm::util::rgba_t bg_color;
+		};
 
 		public: //-- private typedefs --//
 			
@@ -81,6 +95,9 @@ namespace arpterm {
 			comm_parser_t xterm_out_stm_;
 
 			arpterm::util::type::fd_t master_fd_;
+
+			state state_;
+
 
 
 

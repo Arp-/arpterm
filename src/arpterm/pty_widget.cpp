@@ -4,6 +4,7 @@
 #include "generic_parser/util.hpp"
 #include "arpterm/xterm_handler.hpp"
 #include "arpterm/util/util.hpp"
+#include "arpterm/util/rgba_t.hpp"
 #include <utility>
 #include <glibmm.h>
 
@@ -25,7 +26,8 @@ a::PtyWidget::PtyWidget() :
 				XtermHandler::in::callback_list(), &XtermHandler::in::trap_handler),
 		xterm_out_stm_(*this,
 				XtermHandler::out::callback_list(), &XtermHandler::out::trap_handler),
-		master_fd_(0) { 
+		master_fd_(0),
+		state_() { 
 	this->set_has_window(false); // this is important!!!
 	this->master_fd_ = ap::start_pt_master_slave();
 	Glib::signal_timeout().connect(
@@ -126,9 +128,9 @@ a::PtyWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 	auto background = get_style_context();
 	printf("allocation: %d %d\n", width, height);
 
-	//cr->set_source_rgb(0.9,0.0,0.0);
+	cr->set_source_rgb(0.9,0.0,0.0);
 	background->render_background(cr, x, y, width, height);
-	cr->set_source_rgb(0.5,0.9,0.5);
+	au::set_cairo_color(cr,this->state_.font_color);
 	Pango::FontDescription font;
 	font.set_family("Monospace");
 	//font.set_weight(Pango::WEIGHT_BOLD);
