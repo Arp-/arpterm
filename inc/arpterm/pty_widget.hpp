@@ -32,7 +32,7 @@ namespace arpterm {
 			using sig_cb_t = sigc::slot<void(const std::string&)>;
 			using sigh_t = sigc::signal<void(const std::string&)>;
 			using comm_parser_t = 
-				generic_parser::command_parser_t<PtyWidget, uint32_t>;
+				generic_parser::command_parser_t<PtyWidget, char>;
 			using char_vec_t = comm_parser_t::char_vec_t;
 			using com_vec_t = comm_parser_t::com_vec_t;
 			using parser_cb_t = comm_parser_t::param_func_t;
@@ -87,8 +87,6 @@ namespace arpterm {
 		private: //-- private members --//
 
 			Glib::ustring recv_buffer_;
-
-			Glib::ustring command_buffer_;
 
 			comm_parser_t xterm_in_stm_;
 

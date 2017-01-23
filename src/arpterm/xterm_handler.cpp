@@ -2,6 +2,7 @@
 #include "arpterm/pty_widget.hpp"
 #include "arpterm/xterm_handler.hpp"
 #include "arpterm/util/util.hpp"
+#include <type_traits>
 
 #ifdef DEBUG
 #include <iostream>
@@ -14,21 +15,29 @@ namespace au = arpterm::util;
 using pw_char_vec_t = a::PtyWidget::char_vec_t;
 
 
+// NOTE avtually due to the uft8 communication, the com_vec_t should be
+// equal std::vector<char>, change the static assert if you want 
+// some other container
+static_assert(std::is_same<std::vector<char>, pw_char_vec_t>::value);
 
-a::PtyWidget::com_vec_t
+
+a::PtyWidget::com_vec_t 
+
 a::XtermHandler::in::callback_list() {
 	return {
 		{ {'\n'}, &a::XtermHandler::in::new_line_handler },
 		{ {'\r'}, &a::XtermHandler::in::new_line_handler },
 		{ {'\b'}, &a::XtermHandler::in::backspace_handler },
-		{ {0x03}, &a::XtermHandler::in::ctrl_c_handler },
-		{ {0x04}, &a::XtermHandler::in::ctrl_d_handler }
+		//{ {0x03}, &a::XtermHandler::in::ctrl_c_handler },
+		//{ {0x04}, &a::XtermHandler::in::ctrl_d_handler }
 	};
 }
 //-----------------------------------------------------------------------------//
 a::PtyWidget::com_vec_t
 a::XtermHandler::out::callback_list() {
 	return {
+		{ { 0x1B, 0x5B, 0x4B }, &a::XtermHandler::out::erase_in_line_to_rigth },
+		{ { 0x1B, 0x5B, 0x00, 0x4B }, &a::XtermHandler::out::erase_in_line_to_rigth }
 	};
 }
 //-----------------------------------------------------------------------------//
@@ -36,43 +45,21 @@ a::XtermHandler::out::callback_list() {
 void 
 a::XtermHandler::in::trap_handler(a::PtyWidget& pw, 
 		const pw_char_vec_t& cv) {
-	std::cout << "IN TRAP FUNCTION" << std::endl;
-	auto& com_buf = pw.command_buffer_;
-	for (const auto& ch : cv) {
-		if (ch) {
-			com_buf.push_back(ch & 0xff);
-		}
-	}
-	au::print_hex(com_buf.data(), com_buf.bytes());
-	if (!com_buf.validate()) {
-		puts("INVALID UTF8 INPUT BUFFER!");
-	}
+	write(pw.master_fd_, cv.data(), cv.size());
 }
 //-----------------------------------------------------------------------------// void 
 void
 a::XtermHandler::in::new_line_handler(a::PtyWidget& pw,
 		const pw_char_vec_t& cv) {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
-	auto& com_buf = pw.command_buffer_;
-	com_buf.push_back('\n');
-	for (unsigned i = 0; i < com_buf.bytes(); i++) {
-		printf("%08X\n", com_buf.data()[i]);
-	}
-	std::cout << "BYTES: " << com_buf.bytes() << std::endl;
-	au::print_hex(com_buf.data(), com_buf.bytes());
-	write(pw.master_fd_, com_buf.data(), com_buf.bytes());
-	com_buf.erase();
-	gpu::print_vec(cv);
+	write(pw.master_fd_, "\n", 1);
 }
 //-----------------------------------------------------------------------------//
 void 
 a::XtermHandler::in::backspace_handler(a::PtyWidget& pw, 
 		const pw_char_vec_t& cv) {
 	puts(__PRETTY_FUNCTION__);
-	auto& com_buf = pw.command_buffer_;
-	if (!com_buf.empty()) {
-		com_buf.erase(com_buf.size() -1, 1);
-	}
+	write(pw.master_fd_,"\b", 1);
 }
 //-----------------------------------------------------------------------------//
 void
@@ -96,16 +83,15 @@ a::XtermHandler::out::trap_handler(a::PtyWidget& pw,
 	//std::cout << "OUT TRAP_FUNCTION" << std::endl;
 	auto& recv_buf = pw.recv_buffer_;
 
-	for (const gunichar& ch : cv) {
+	for (const auto& ch : cv) {
 		// static cast because otherwise it'll be a gunichar overloded one
-		recv_buf.push_back(static_cast<char>(ch & 0xff)); 
-	}
-	if (!recv_buf.validate()) {
-		puts("INVALID UTF8 OUTPUT BUFFFER");
-		au::print_hex(recv_buf.data(), recv_buf.bytes());
-	} else {
-		puts("VALID UTF8 OUTPUT BUFFER");
-		au::print_hex(recv_buf.data(), recv_buf.bytes());
+		recv_buf.push_back(ch); 
 	}
 }
 //-----------------------------------------------------------------------------//
+void
+a::XtermHandler::out::erase_in_line_to_rigth(a::PtyWidget& pw,
+		const pw_char_vec_t& cv) {
+	const auto& recv_buf = pw.recv_buffer_;
+	pw.recv_buffer_.erase(recv_buf.size()-2);
+}

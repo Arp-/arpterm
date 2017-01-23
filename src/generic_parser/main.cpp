@@ -4,33 +4,26 @@
 #include <utility>
 #include <tuple>
 
-#include "generic_parser/command.hpp"
+#include "generic_parser/util.hpp"
 
-//using namespace xterm_parser;
+namespace gp = generic_parser;
+namespace gpu = generic_parser::util;
 
-namespace xp = generic_parser;
+#define STRFY(X) #X
+#define APPEXPR(X) STRFY(X) << ": " << (X?"TRUE":"FALSE")
+
  
-void update_int(int& b) {
-	printf("called update int\n");
-	b = 3;
-}
-
-void macska(int& b) {
-	printf("macska\n");
-}
-
 int main() {
 
-	int a = 6;
-	xp::command_parser_t<int> c(a);
-	c.add_command({'a','b','c'}, &update_int);
-	c.add_command({'a','b'}, &macska);
+	std::array<int, 4> arr1 = { 1,2,0,5 };
+	std::vector<int> arr2 =   { 1,9,9,5,5,6,7,8,5,4,3 };
 
-	c.parse('a');
-	c.parse('b');
-	c.parse('c');
+	std::cout << APPEXPR(gpu::start_match(arr1, arr2, 5)) << std::endl;
 
-	printf("%d\n",a);
+	std::array<int, 4> end =   {1,2,3,0};
+	std::vector<int> end_vec = {1,2,3,4,5,6,7,8,1,2,1,2};
+
+	std::cout << APPEXPR(gpu::end_match(end, end_vec)) << std::endl;
 
 
 	return 0;

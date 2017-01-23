@@ -5,6 +5,8 @@
 #include "arpterm/xterm_handler.hpp"
 #include "arpterm/util/util.hpp"
 #include "arpterm/util/rgba_t.hpp"
+#include "arpterm/util/termios.hpp"
+#include "arpterm/util/sys/ioctl.hpp"
 #include <utility>
 #include <glibmm.h>
 
@@ -21,7 +23,6 @@ a::PtyWidget::PtyWidget() :
 		Glib::ObjectBase("PtyWidget"),
 		Gtk::Widget(),
 		recv_buffer_(),
-		command_buffer_(),
 		xterm_in_stm_(*this,
 				XtermHandler::in::callback_list(), &XtermHandler::in::trap_handler),
 		xterm_out_stm_(*this,
@@ -30,6 +31,7 @@ a::PtyWidget::PtyWidget() :
 		state_() { 
 	this->set_has_window(false); // this is important!!!
 	this->master_fd_ = ap::start_pt_master_slave();
+
 	Glib::signal_timeout().connect(
 			sigc::mem_fun(this, &a::PtyWidget::do_fd_read), 100);
 }
@@ -106,6 +108,8 @@ a::PtyWidget::on_unmap() {
 void
 a::PtyWidget::on_realize() {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
+	struct winsize wsz = { 0, 0, 800, 600 };
+	ioctl(this->master_fd_, TIOCSWINSZ, &wsz );
 	Gtk::Widget::on_realize();
 	//this->set_realized();
 }
@@ -134,7 +138,7 @@ a::PtyWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 	Pango::FontDescription font;
 	font.set_family("Monospace");
 	//font.set_weight(Pango::WEIGHT_BOLD);
-	auto layout = create_pango_layout(this->recv_buffer_ + this->command_buffer_);
+	auto layout = create_pango_layout(this->recv_buffer_);
 	layout->set_font_description(font);
 	layout->show_in_cairo_context(cr);
 
@@ -180,11 +184,15 @@ static void print_buffer(const Glib::ustring ustr) {
 }
 //-----------------------------------------------------------------------------//
 void
-a::PtyWidget::on_input_received(uint32_t unichar) {
-	this->xterm_in_stm_.parse(unichar);
+a::PtyWidget::on_input_received(gunichar unichar) {
+	Glib::ustring repr;
+	repr.push_back(unichar);
+	const char* utf8_char_seq = repr.data();
+	for (unsigned i = 0; i < repr.bytes(); i++) {
+		this->xterm_in_stm_.parse(utf8_char_seq[i]);
+	}
 
-	print_buffer(this->command_buffer_);
-	this->queue_draw();
+	//this->queue_draw();
 }
 //-----------------------------------------------------------------------------//
 

@@ -7,13 +7,10 @@
 #include <type_traits>
 #include <cstdint>
 #include "generic_parser/util.hpp"
+#include "generic_parser/error_code.hpp"
 
 namespace generic_parser {
 
-	enum class ec {
-		OK = 0,
-		FAIL = 1
-	};
 
 	template <typename Param, typename char_T = uint8_t>
 	class command_parser_t {

@@ -20,6 +20,7 @@ namespace arpterm {
 		struct out {
 			static PtyWidget::com_vec_t callback_list();
 			static void trap_handler(PtyWidget&, const PtyWidget::char_vec_t&);
+			static void erase_in_line_to_rigth(PtyWidget&, const PtyWidget::char_vec_t&);
 		};
 
 	};

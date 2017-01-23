@@ -56,7 +56,10 @@ solution "arpterm"
 
 		buildoptions {
 			"`pkg-config --cflags gtkmm-3.0`",
-			"-std=c++14"
+			"-std=c++14",
+			"-Wall",
+			"-Wextra",
+			"-pedantic",
 		}
 		linkoptions {
 			"`pkg-config --libs gtkmm-3.0`"
@@ -66,7 +69,7 @@ solution "arpterm"
 
 --[[-------------------------------------------------------------------------]]--
 	project "generic_parser"
-		kind "staticLib"
+		kind "consoleApp"
 		language "C++"
 		includedirs {
 			inc_dir
@@ -79,5 +82,5 @@ solution "arpterm"
 		}
 
 		excludes { 
-			src_dir .. "generic_parser/main.cpp"
+		--	src_dir .. "generic_parser/main.cpp"
 		}
