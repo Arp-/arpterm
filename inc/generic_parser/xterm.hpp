@@ -4,6 +4,7 @@
 
 #include <array>
 #include <cstdint>
+#include <type_traits>
 #include "generic_parser/error_code.hpp"
 
 namespace generic_parser {
@@ -11,6 +12,9 @@ namespace generic_parser {
 	template <typename context_T,
 			typename char_T = char, size_t term_seq_max_len_V = 4>
 	class xterm {
+
+		static_assert(std::is_integral<char_T>::value, 
+				"template parameter char_T is not an integral_type!");
 
 		public: //-- public types --//
 
@@ -22,7 +26,7 @@ namespace generic_parser {
 					inline descriptor_t(
 							std::array<char,term_seq_max_len_V> s,
 							std::array<char,term_seq_max_len_V> e):
-						start(s),
+						begin(s),
 						end(e) {
 
 						}
@@ -31,21 +35,33 @@ namespace generic_parser {
 					
 				public: //-- public members --//
 
-					std::array<char, term_seq_max_len_V> start; // default CSI is 16 bit length 
+					std::array<char, term_seq_max_len_V> begin; // default CSI is 16 bit length 
 
 					std::array<char, term_seq_max_len_V> end; // 0 bites at the end will be ignored
 			};
 
+		private: //-- private typedefs --//
 			using param_t = int;
-			using char_T = char_T;
+		public: //-- public types --//
+			using char_vec_t = std::vector<char_T>;
+			using param_vec_t = std::vector<param_t>;
 			// context_T the type of the context we'll give
 			typedef void (*callback_t)(context_T&, const std::vector<param_t>&);
 
-			typedef void (*trap_callback_t)(context_T&, std::vector<char_T>&);
+			typedef void (*trap_handler_t)(context_T&, const std::vector<char_T>&);
+
+			using com_vec_t = std::vector<std::pair<descriptor_t, callback_t>>;
 
 		public: //-- public functions --//
 
-			xterm(context_T& ctx)
+			xterm(context_T& ctx):
+				buffer_(),
+				descriptor_(),
+				trap_handler_(NULL),
+				context_(ctx) {};
+
+			xterm(context_T& ctx, com_vec_t&& cv, trap_handler_t&& th):
+				buffer_(), descriptor_(cv), trap_handler_(th), context_(ctx) {}
 
 			inline ~xterm() = default;
 
@@ -54,40 +70,51 @@ namespace generic_parser {
 						std::make_pair(std::forward(desc), std::forward(cb)));
 			}
 
-			void set_trap(trap_callback_t&& tcb) {
+			void set_trap(trap_handler_t&& tcb) {
 				this->trap_callback_ = tcb;
 			}
 
 			ec parse(const char_T ch) {
-				this->buffer_.add(ch);
+				this->buffer_.push_back(ch);
 				for (const auto& pair : this->descriptor_) {
-
+					const auto& desc = pair.first;
+					size_t param_size = util::param_arr_len(desc.begin) + 
+						util::param_arr_len(desc.end);
+					bool start_match = 
+						util::start_match(desc.begin, this->buffer_, this->buffer_.size());
+					bool end_match = util::end_match(desc.end, this->buffer_);
+					if (param_size >= this->buffer_.size() && start_match && end_match) {
+						auto&& param_buf = 
+							util::get_param_vec(desc.begin, desc.end, this->buffer_);
+						// TODO parse the params
+						std::vector<param_t> param_vec;
+						if (!util::parse_param_vec(param_buf, param_vec)) {
+							pair.second(this->context_, param_vec); 
+							this->clear_state();
+							return ec::OK;
+						} else {
+							std::cerr << "TRAPPED INVALID PARAMETER!!!" << std::endl;
+							this->trap_handler_(this->context_, this->buffer_);
+							this->clear_state();
+							return ec::FAIL;
+						}
+					} else if (start_match) {
+						return ec::OK; // NOTE this needs some refining 
+					}
 				}
 
-				this->trap_callback_(this->context_, this->buffer_);
-				this->buffer_.erase();
+				std::cerr << "TRAPPED NO MATCH" << std::endl;
+				this->trap_handler_(this->context_, this->buffer_);
+				this->clear_state();
+				return ec::OK;
 			}
 
 		private: //-- private functions --//
 
-			bool compare_descriptor(const auto& descriptor_t desc,
-					const std::vector<char_T>& char_vec) const {
-				if (char_vec.size() < 2) { // parse the control char ESC or CSI or etc
-					if (char_vec[0] == desc.start_char[0]) { // first char_matches
-						if (desc.start_char[1] == 0) {
-							goto head;
-						} else if (char_vec[1] == desc.start_char[1]) {
-							goto head;
-						}
-						return false;
-					}
-				}
-			head: // we parsed the head now we chack if we have an extra param set?0
-				if (desc.xterm_custom_param >= 0x3B && 
-						desc.xterm_custom_param <= 0x3F) 
-
-
+			void clear_state() {
+				this->buffer_.clear();
 			}
+
 
 
 
@@ -95,11 +122,12 @@ namespace generic_parser {
 
 			std::vector<char_T> buffer_;
 
-			std::vector<std::pair<descriptor_t, callback_t>> descriptor_;
+			com_vec_t descriptor_;
+
+			trap_handler_t trap_handler_;
 
 			context_T& context_;
 
-			trap_callback_t trap_handler_;
 
 	};
 

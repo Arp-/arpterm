@@ -30,8 +30,6 @@ typedef struct {
 #define ARPTERM_MAX_THREAD_NUM 1024
 //----------------------------------------------------------------------------//
 static au::hash_map<aut::fd_t, pid_t, ARPTERM_MAX_THREAD_NUM> thread_list_;
-
-static std::array<aut::fd_t, ARPTERM_MAX_THREAD_NUM> thread_free_list_;
 //-----------------------------------------------------------------------------//
 inline void err_exit(const char* errmsg) {
 	perror(errmsg);

@@ -12,74 +12,42 @@ namespace  gpu = generic_parser::util;
 
 namespace a = arpterm;
 namespace au = arpterm::util;
-using pw_char_vec_t = a::PtyWidget::char_vec_t;
 
+using com_parser_t = a::PtyWidget::com_parser_t;
+using com_vec_t = com_parser_t::com_vec_t;
+using char_vec_t = com_parser_t::char_vec_t;
+using param_vec_t = com_parser_t::param_vec_t;
 
 // NOTE avtually due to the uft8 communication, the com_vec_t should be
 // equal std::vector<char>, change the static assert if you want 
 // some other container
-static_assert(std::is_same<std::vector<char>, pw_char_vec_t>::value);
+static_assert(std::is_same<std::vector<char>, char_vec_t>::value);
 
 
-a::PtyWidget::com_vec_t 
-
+com_vec_t
 a::XtermHandler::in::callback_list() {
 	return {
-		{ {'\n'}, &a::XtermHandler::in::new_line_handler },
-		{ {'\r'}, &a::XtermHandler::in::new_line_handler },
-		{ {'\b'}, &a::XtermHandler::in::backspace_handler },
-		//{ {0x03}, &a::XtermHandler::in::ctrl_c_handler },
-		//{ {0x04}, &a::XtermHandler::in::ctrl_d_handler }
 	};
 }
 //-----------------------------------------------------------------------------//
-a::PtyWidget::com_vec_t
+com_vec_t
 a::XtermHandler::out::callback_list() {
 	return {
-		{ { 0x1B, 0x5B, 0x4B }, &a::XtermHandler::out::erase_in_line_to_rigth },
-		{ { 0x1B, 0x5B, 0x00, 0x4B }, &a::XtermHandler::out::erase_in_line_to_rigth }
+		{ {{0x1B,0x5B,0,0},{0x4B, 0,0,0} }, &erase_in_line_handler },
 	};
 }
 //-----------------------------------------------------------------------------//
 // FUNCTIONS FOR IN //
 void 
 a::XtermHandler::in::trap_handler(a::PtyWidget& pw, 
-		const pw_char_vec_t& cv) {
+		const char_vec_t& cv) {
 	write(pw.master_fd_, cv.data(), cv.size());
 }
 //-----------------------------------------------------------------------------// void 
-void
-a::XtermHandler::in::new_line_handler(a::PtyWidget& pw,
-		const pw_char_vec_t& cv) {
-	std::cout << __PRETTY_FUNCTION__ << std::endl;
-	write(pw.master_fd_, "\n", 1);
-}
-//-----------------------------------------------------------------------------//
-void 
-a::XtermHandler::in::backspace_handler(a::PtyWidget& pw, 
-		const pw_char_vec_t& cv) {
-	puts(__PRETTY_FUNCTION__);
-	write(pw.master_fd_,"\b", 1);
-}
-//-----------------------------------------------------------------------------//
-void
-a::XtermHandler::in::ctrl_c_handler(PtyWidget& pw,
-		const pw_char_vec_t& cv) {
-	puts(__PRETTY_FUNCTION__);
-
-}
-//-----------------------------------------------------------------------------//
-void
-a::XtermHandler::in::ctrl_d_handler(PtyWidget& pw,
-		const pw_char_vec_t& cv) {
-	puts(__PRETTY_FUNCTION__);
-
-}
-//-----------------------------------------------------------------------------//
 // FUNCTIONS FOR OUT //
 void 
 a::XtermHandler::out::trap_handler(a::PtyWidget& pw,
-		const pw_char_vec_t& cv) {
+		const char_vec_t& cv) {
 	//std::cout << "OUT TRAP_FUNCTION" << std::endl;
 	auto& recv_buf = pw.recv_buffer_;
 
@@ -90,8 +58,7 @@ a::XtermHandler::out::trap_handler(a::PtyWidget& pw,
 }
 //-----------------------------------------------------------------------------//
 void
-a::XtermHandler::out::erase_in_line_to_rigth(a::PtyWidget& pw,
-		const pw_char_vec_t& cv) {
-	const auto& recv_buf = pw.recv_buffer_;
-	pw.recv_buffer_.erase(recv_buf.size()-2);
+a::XtermHandler::out::erase_in_line_handler(a::PtyWidget& pw,
+		const param_vec_t& pv) {
+	puts(__PRETTY_FUNCTION__);
 }

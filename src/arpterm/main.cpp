@@ -24,26 +24,6 @@ inline Glib::RefPtr<T> make_ref (Args&& ...args) {
 }
 
 
-static bool handle_read(int master_fd) {
-	char buf[1000];
-	int len = read(master_fd, buf, sizeof(buf));
-	if (len < 0) {
-		if (errno == EAGAIN) {
-			return true;
-		}
-		printf("GOT ERROR CLOSE\n");
-		close(master_fd);
-		ap::stop(master_fd);
-		return false;
-	} else if (len == 0) {
-		printf("GOT EOF CLOSE\n");
-		close(master_fd);
-		ap::stop(master_fd);
-		return false;
-	}
-	printf("msg: `%.*s'\n", len, buf);
-	return true;
-}
 //-----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
 

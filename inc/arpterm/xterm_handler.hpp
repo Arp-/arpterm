@@ -7,20 +7,23 @@ namespace arpterm {
 
 	struct XtermHandler {
 
-		struct in {
-			static PtyWidget::com_vec_t callback_list();
-			static void trap_handler(PtyWidget&, const PtyWidget::char_vec_t&);
+		private: //-- private types --//
+			using com_parser_t = PtyWidget::com_parser_t;
+			using com_vec_t = com_parser_t::com_vec_t;
+			using char_vec_t = com_parser_t::char_vec_t;
+			using param_vec_t = com_parser_t::param_vec_t;
 
-			static void new_line_handler(PtyWidget&, const PtyWidget::char_vec_t&);
-			static void backspace_handler(PtyWidget&, const PtyWidget::char_vec_t&);
-			static void ctrl_c_handler(PtyWidget&, const PtyWidget::char_vec_t&);
-			static void ctrl_d_handler(PtyWidget&, const PtyWidget::char_vec_t&);
+		public: //-- public stuff --//
+
+		struct in {
+			static com_vec_t callback_list();
+			static void trap_handler(PtyWidget&, const char_vec_t&);
 		};
 
 		struct out {
-			static PtyWidget::com_vec_t callback_list();
-			static void trap_handler(PtyWidget&, const PtyWidget::char_vec_t&);
-			static void erase_in_line_to_rigth(PtyWidget&, const PtyWidget::char_vec_t&);
+			static com_vec_t callback_list();
+			static void trap_handler(PtyWidget&, const char_vec_t&);
+			static void erase_in_line_handler(PtyWidget&, const param_vec_t&);
 		};
 
 	};

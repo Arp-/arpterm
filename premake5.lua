@@ -58,8 +58,6 @@ solution "arpterm"
 			"`pkg-config --cflags gtkmm-3.0`",
 			"-std=c++14",
 			"-Wall",
-			"-Wextra",
-			"-pedantic",
 		}
 		linkoptions {
 			"`pkg-config --libs gtkmm-3.0`"

@@ -5,6 +5,7 @@
 #include <gtkmm/widget.h>
 #include <gdkmm/color.h>
 #include "generic_parser/command.hpp"
+#include "generic_parser/xterm.hpp"
 #include "arpterm/util/type.hpp"
 #include "arpterm/default.hpp"
 #include "arpterm/util/rgba_t.hpp"
@@ -31,12 +32,8 @@ namespace arpterm {
 			
 			using sig_cb_t = sigc::slot<void(const std::string&)>;
 			using sigh_t = sigc::signal<void(const std::string&)>;
-			using comm_parser_t = 
-				generic_parser::command_parser_t<PtyWidget, char>;
-			using char_vec_t = comm_parser_t::char_vec_t;
-			using com_vec_t = comm_parser_t::com_vec_t;
-			using parser_cb_t = comm_parser_t::param_func_t;
-
+			using com_parser_t = 
+				generic_parser::xterm<PtyWidget, char>;
 
 		public: //-- public functions --//
 
@@ -88,9 +85,9 @@ namespace arpterm {
 
 			Glib::ustring recv_buffer_;
 
-			comm_parser_t xterm_in_stm_;
+			com_parser_t xterm_in_stm_;
 
-			comm_parser_t xterm_out_stm_;
+			com_parser_t xterm_out_stm_;
 
 			arpterm::util::type::fd_t master_fd_;
 

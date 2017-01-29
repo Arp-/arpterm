@@ -38,7 +38,7 @@ namespace generic_parser {
 		template <typename T, size_t size_V>
 		bool start_match(const std::array<T, size_V>& arr,
 				const std::vector<T>& vec, size_t depth) {
-			for (int i = 0; i < depth && i < size_V && arr[i] != 0; i++) {
+			for (size_t i = 0; i < depth && i < size_V && arr[i] != 0; i++) {
 				if (arr[i] == vec[i]) {
 					continue;
 				}
@@ -65,11 +65,58 @@ namespace generic_parser {
 		}
 
 		template <typename T, size_t size_V>
-		inline int param_arr_size(const std::array<T, size_V>& arr) {
-			int i = 0;
+		inline size_t param_arr_len(const std::array<T, size_V>& arr) {
+			size_t i = 0;
 			for (i = 0; i < size_V && arr[i] != 0; i++);
 			return i;
 		}
+
+		template <typename T, size_t size_V>
+		std::vector<T> get_param_vec(const std::array<T, size_V>& begin,
+				const std::array<T, size_V>& end, const std::vector<T>& buffer) {
+
+			size_t beg_size = param_arr_len(begin);
+			size_t end_size = param_arr_len(end);
+
+			std::vector<T> to_vec;
+			auto beg_it = buffer.begin();
+			auto end_it = buffer.end();
+			std::copy(beg_it + beg_size, end_it - end_size, std::back_inserter(to_vec));
+			return to_vec;
+		}
+
+		template <typename param_T, typename ret_T>
+		int parse_param_vec(
+				const std::vector<param_T>& param_buf, std::vector<ret_T>& ret_vec) {
+
+			constexpr param_T PARAM_SEP = 0x3B;
+			constexpr param_T CUSTOM_SEP = 0x3A;
+			ret_T elem = 0;
+			bool got_elem = false;
+			for (auto ch : param_buf) {
+				if (ch == PARAM_SEP && got_elem == false) {
+					ret_vec.push_back(-1);
+				} else if (ch == PARAM_SEP) {
+					ret_vec.push_back(elem);
+					elem = 0;
+					got_elem = false;
+				} else if (0x30 <= ch && ch <= 0x39) {
+					elem *= 10;
+					elem += (ch & 0x0f);
+					got_elem = true;
+				} else if (CUSTOM_SEP == ch) {
+					std::cerr << "GOT_CUSTOM_SEPARATOR" << std::endl;
+				} else {
+					return -2; // INVALID CHARACTER INSIDE PARAM_SEQ
+				}
+			}
+			// if no separator was found then maybe we red only one elment
+			if (got_elem) {
+				ret_vec.push_back(elem);
+			}
+			return 0; // PARSE_WAS OKAY
+		}
+
 
 	} // namespace util
 

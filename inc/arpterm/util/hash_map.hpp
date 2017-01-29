@@ -40,7 +40,7 @@ namespace arpterm { namespace util {
 					const auto& isset = this->hmap_.set_container_;
 					do { 
 						this->index_++;
-					} while (!isset[this->index_] && this->index_ < len_V);
+					} while (!isset[this->index_] && this->index_ < static_cast<int>(len_V));
 					return *this; 
 				}
 				k_v_pair operator*() { return { this->hmap_.key_container_[this->index_], this->hmap_.val_container_[this->index_] }; }
@@ -89,7 +89,7 @@ namespace arpterm { namespace util {
 			}
 
 			inline val_T* get(const key_T& key) noexcept {
-				for (int i = 0; i < len_V; i++) {
+				for (int i = 0; i < static_cast<int>(len_V); i++) {
 					const key_T& key_ref = this->key_container_[i];
 					bool is_set = this->set_container_[i];
 					if (key_ref == key && is_set) {
