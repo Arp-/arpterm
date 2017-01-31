@@ -94,7 +94,10 @@ static int start_new_slave_thread(
 	int slave_fd = open(slave_name, O_RDWR);
 	/**
 	 *  termios an winsize is needed for dunno */
-	const struct termios* termios = term;
+	/**
+	 * TODO learn how to verify termios canon/raw mode without constant checking
+	 */
+	struct termios* termios = term;
 	tcsetattr(slave_fd, TCSANOW, term);
 	const struct winsize* slave_ws = nullptr;
 

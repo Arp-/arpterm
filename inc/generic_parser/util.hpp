@@ -13,6 +13,12 @@ namespace generic_parser {
 
 	namespace util {
 
+		template <typename T, size_t size_V>
+		inline size_t param_arr_len(const std::array<T, size_V>& arr) {
+			size_t i = 0;
+			for (i = 0; i < size_V && arr[i] != 0; i++);
+			return i;
+		}
 
 		template <typename T> 
 		bool vector_compare(
@@ -49,10 +55,11 @@ namespace generic_parser {
 
 		template <typename T, size_t size_V>
 		bool end_match(const std::array<T, size_V>& arr,
-				const std::vector<T>& vec) {
+				const std::vector<T>& vec, size_t depth ) {
 
 			int j = 0;
-			for (int i = size_V-1; i >= 0; i--) {
+			size_t k = 0;
+			for (int i = size_V-1; i >= 0 && k < depth; i--, k++) {
 				if (arr[i] == 0) { continue; }
 				const auto vec_size = vec.size();
 				if (arr[i] == vec[vec_size-1-(j)]) {
@@ -65,11 +72,38 @@ namespace generic_parser {
 		}
 
 		template <typename T, size_t size_V>
-		inline size_t param_arr_len(const std::array<T, size_V>& arr) {
-			size_t i = 0;
-			for (i = 0; i < size_V && arr[i] != 0; i++);
-			return i;
+		bool strict_match(const std::array<T, size_V>& beg, const std::vector<T>& vec,
+				const std::array<T, size_V>& end) {
+			const size_t beg_size = param_arr_len(beg);
+			if (!start_match(beg, vec, beg_size)) {
+				return false;
+			}
+			const auto vec_size = vec.size();
+			return end_match(end,vec,vec_size);
 		}
+
+		template <typename T, size_t size_V>
+		bool possible_match(const std::array<T,size_V>& beg, const std::vector<T>& vec,
+				const std::array<T, size_V> end) {
+			const size_t vec_size = vec.size();
+			if (!start_match(beg, vec, vec_size)) {
+				return false;
+			}
+			const size_t beg_size = param_arr_len(beg);
+			for (size_t i = beg_size -1; i < vec_size; i++) {
+				// continues with parameters
+				if (0x30 <= vec[i] && vec[i] <= 0x3B) { 
+					continue;
+				// continues with end_sequence
+				} else if (end_match(end,vec, vec_size -1 -i)) {
+					continue;
+				}
+
+			}
+		}
+
+
+
 
 		template <typename T, size_t size_V>
 		std::vector<T> get_param_vec(const std::array<T, size_V>& begin,
@@ -84,6 +118,7 @@ namespace generic_parser {
 			std::copy(beg_it + beg_size, end_it - end_size, std::back_inserter(to_vec));
 			return to_vec;
 		}
+
 
 		template <typename param_T, typename ret_T>
 		int parse_param_vec(

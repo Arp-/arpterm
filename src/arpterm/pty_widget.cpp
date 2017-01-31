@@ -165,7 +165,7 @@ a::PtyWidget::do_fd_read() {
 		// TODO close parent
 		return false;
 	}
-	printf("buffer: \n");
+	printf("READ_BUFFER: \n");
 	au::print_hex(buf, len);
 	for (int i = 0; i < len; i++) {
 		this->xterm_out_stm_.parse(buf[i] & 0xff);
@@ -192,7 +192,7 @@ a::PtyWidget::on_input_received(gunichar unichar) {
 		this->xterm_in_stm_.parse(utf8_char_seq[i]);
 	}
 
-	//this->queue_draw();
+	this->queue_draw();
 }
 //-----------------------------------------------------------------------------//
 

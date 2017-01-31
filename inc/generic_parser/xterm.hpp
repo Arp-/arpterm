@@ -74,35 +74,34 @@ namespace generic_parser {
 				this->trap_callback_ = tcb;
 			}
 
+
 			ec parse(const char_T ch) {
 				this->buffer_.push_back(ch);
 				for (const auto& pair : this->descriptor_) {
 					const auto& desc = pair.first;
-					size_t param_size = util::param_arr_len(desc.begin) + 
-						util::param_arr_len(desc.end);
-					bool start_match = 
-						util::start_match(desc.begin, this->buffer_, this->buffer_.size());
-					bool end_match = util::end_match(desc.end, this->buffer_);
-					if (param_size >= this->buffer_.size() && start_match && end_match) {
-						auto&& param_buf = 
-							util::get_param_vec(desc.begin, desc.end, this->buffer_);
-						// TODO parse the params
-						std::vector<param_t> param_vec;
-						if (!util::parse_param_vec(param_buf, param_vec)) {
-							pair.second(this->context_, param_vec); 
-							this->clear_state();
-							return ec::OK;
-						} else {
-							std::cerr << "TRAPPED INVALID PARAMETER!!!" << std::endl;
-							this->trap_handler_(this->context_, this->buffer_);
-							this->clear_state();
-							return ec::FAIL;
+					if (util::possible_match(desc.begin, this->buffer_, desc.end)) {
+						if (util::strict_match(desc.begin, this->buffer_, desc.end)) {
+							auto&& param_buf = 
+								util::get_param_vec(desc.begin, desc.end, this->buffer_);
+							std::vector<param_t> param_vec;
+							if (!util::parse_param_vec(param_buf, param_vec)) {
+								puts("XTERM OK");
+								pair.second(this->context_, param_vec); 
+								this->clear_state();
+								return ec::OK;
+							} else { 
+								puts("XTERM_FAIL");
+								std::cerr << "TRAPPED INVALID PARAMETER!!!" << std::endl;
+								this->trap_handler_(this->context_, this->buffer_);
+								this->clear_state();
+								return ec::FAIL;
+							}
 						}
-					} else if (start_match) {
-						return ec::OK; // NOTE this needs some refining 
+						puts("POSSIBLE MATCH");
+						return ec::OK;
 					}
+					puts("CONTINUE");
 				}
-
 				std::cerr << "TRAPPED NO MATCH" << std::endl;
 				this->trap_handler_(this->context_, this->buffer_);
 				this->clear_state();

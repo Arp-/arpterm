@@ -30,7 +30,7 @@ static void test_start_match_end_match() {
 	std::array<int, 4> end =   {1,2,0,0};
 	std::vector<int> end_vec = {1,2};
 
-	std::cout << APPEXPR(gpu::end_match(end, end_vec)) << std::endl;
+	std::cout << APPEXPR(gpu::end_match(end, end_vec, 10)) << std::endl;
 
 	std::cout << APPEXPR(gpu::param_arr_len(arr1)) << std::endl;
 

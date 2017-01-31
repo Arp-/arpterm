@@ -23,9 +23,15 @@ inline Glib::RefPtr<T> make_ref (Args&& ...args) {
 	return Glib::RefPtr<T>(new T(std::forward<Args>(args)...));
 }
 
+//void signal(int sig) {
+//	printf("SALLED SIGGTOU\n");
+//}
+
 
 //-----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
+	//void(*sigttou_handler)(int)
+	//signal(SIGTTOU, &signal);
 
 
 

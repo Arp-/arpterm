@@ -34,6 +34,7 @@ com_vec_t
 a::XtermHandler::out::callback_list() {
 	return {
 		{ {{0x1B,0x5B,0,0},{0x4B, 0,0,0} }, &erase_in_line_handler },
+		{ {{0x08,0,0,0}, {0,0,0,0}}, &backspace_handler},
 	};
 }
 //-----------------------------------------------------------------------------//
@@ -41,6 +42,7 @@ a::XtermHandler::out::callback_list() {
 void 
 a::XtermHandler::in::trap_handler(a::PtyWidget& pw, 
 		const char_vec_t& cv) {
+	puts("IN_TRAP_FUNCTION");
 	write(pw.master_fd_, cv.data(), cv.size());
 }
 //-----------------------------------------------------------------------------// void 
@@ -48,9 +50,9 @@ a::XtermHandler::in::trap_handler(a::PtyWidget& pw,
 void 
 a::XtermHandler::out::trap_handler(a::PtyWidget& pw,
 		const char_vec_t& cv) {
-	//std::cout << "OUT TRAP_FUNCTION" << std::endl;
+	std::cout << "OUT TRAP_FUNCTION" << std::endl;
 	auto& recv_buf = pw.recv_buffer_;
-
+	
 	for (const auto& ch : cv) {
 		// static cast because otherwise it'll be a gunichar overloded one
 		recv_buf.push_back(ch); 
@@ -60,5 +62,23 @@ a::XtermHandler::out::trap_handler(a::PtyWidget& pw,
 void
 a::XtermHandler::out::erase_in_line_handler(a::PtyWidget& pw,
 		const param_vec_t& pv) {
-	puts(__PRETTY_FUNCTION__);
+	puts("ERASE_IN_LINE_HANDLER");
+	for (const auto& elem : pv) {
+		std::cout << "vec: " << elem << std::endl;
+	}
+	auto& buf = pw.recv_buffer_;
+	if (!buf.empty()) {
+		std::cout << "bef: ";
+		au::print_hex(buf.data(), buf.bytes());
+		buf.resize(buf.bytes()-1);
+	}
+	std::cout << "af: ";
+	au::print_hex(buf.data(), buf.bytes());
+	buf.normalize();
 }
+//-----------------------------------------------------------------------------//
+void a::XtermHandler::out::backspace_handler(a::PtyWidget& pw,
+		const param_vec_t& pv) {
+	puts("BACKSPACE_HANDLER");
+}
+
