@@ -45,11 +45,11 @@ namespace generic_parser {
 			using param_t = int;
 		public: //-- public types --//
 			using char_vec_t = std::vector<char_T>;
-			using param_vec_t = std::vector<param_t>;
+			using param_vec_t = char_vec_t;
 			// context_T the type of the context we'll give
-			typedef void (*callback_t)(context_T&, const std::vector<param_t>&);
+			typedef void (*callback_t)(context_T&, const param_vec_t&);
 
-			typedef void (*trap_handler_t)(context_T&, const std::vector<char_T>&);
+			typedef void (*trap_handler_t)(context_T&, const char_vec_t&);
 
 			using com_vec_t = std::vector<std::pair<descriptor_t, callback_t>>;
 
@@ -81,20 +81,17 @@ namespace generic_parser {
 				for (const auto& pair : this->descriptor_) {
 					const auto& desc = pair.first;
 					if (util::possible_match(desc.begin, this->buffer_, desc.end)) {
+							puts("possible_match:");
+							util::print_hex(this->buffer_);
 						if (util::strict_match(desc.begin, this->buffer_, desc.end)) {
+							puts("strict_match:");
 							util::print_hex(this->buffer_);
 							auto&& param_buf = 
 								util::get_param_vec(desc.begin, desc.end, this->buffer_);
 							std::vector<param_t> param_vec;
-							if (!util::parse_param_vec(param_buf, param_vec)) {
-								pair.second(this->context_, param_vec); 
-								this->clear_state();
-								return ec::OK;
-							} else { 
-								this->trap_handler_(this->context_, this->buffer_);
-								this->clear_state();
-								return ec::FAIL;
-							}
+							pair.second(this->context_, param_buf); 
+							this->clear_state();
+							//return ec::OK;
 						}
 						return ec::OK;
 					}

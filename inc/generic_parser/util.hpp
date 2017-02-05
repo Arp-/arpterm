@@ -93,21 +93,26 @@ namespace generic_parser {
 		}
 //-----------------------------------------------------------------------------//
 		template <typename T, size_t size_V>
-		bool possible_match(const std::array<T,size_V>& beg, const std::vector<T>& vec,
-				const std::array<T, size_V> end) {
+		bool possible_match( const std::array<T,size_V>& beg,
+			 	const std::vector<T>& vec, const std::array<T, size_V> end) {
 			const size_t vec_size = vec.size();
 			if (!start_match(beg, vec, vec_size)) {
+				puts("no_start_match");
 				return false;
 			}
 			const size_t beg_size = param_arr_len(beg);
-			for (size_t i = beg_size -1; i < vec_size; i++) {
+			for (size_t i = beg_size; i < vec_size; i++) {
+				printf("vec[%d]: %02X", i, vec[i] & 0xff);
 				// continues with parameters
-				if (0x30 <= vec[i] && vec[i] <= 0x3B) { 
+				if (0x20 <= vec[i] && vec[i] <= 0x7f) { 
+					puts("param_match");
 					continue;
 				// continues with end_sequence
 				} else if (end_match(end,vec, vec_size -1 -i)) {
+					puts("end_match");
 					continue;
 				} else {
+					puts("no_match2");
 					return false;
 				}
 			}

@@ -89,6 +89,10 @@ void
 a::PtyWidget::on_size_allocate(Gtk::Allocation& allocation) {
 
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
+	auto width = allocation.get_width();
+	auto height =  allocation.get_height();
+	struct winsize wsz = { 0, 0, width, height };
+	ioctl(this->master_fd_, TIOCSWINSZ, &wsz );
 	this->set_allocation(allocation);
 
 }
@@ -108,8 +112,6 @@ a::PtyWidget::on_unmap() {
 void
 a::PtyWidget::on_realize() {
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
-	struct winsize wsz = { 0, 0, 800, 600 };
-	ioctl(this->master_fd_, TIOCSWINSZ, &wsz );
 	Gtk::Widget::on_realize();
 	//this->set_realized();
 }
@@ -139,6 +141,9 @@ a::PtyWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 	font.set_family("Monospace");
 	//font.set_weight(Pango::WEIGHT_BOLD);
 	auto layout = create_pango_layout(this->recv_buffer_);
+	layout->set_width(width * Pango::SCALE);
+	layout->set_height(height * Pango::SCALE);
+	layout->set_wrap(Pango::WrapMode::WRAP_CHAR);
 	layout->set_font_description(font);
 	layout->show_in_cairo_context(cr);
 

@@ -33,9 +33,10 @@ a::XtermHandler::in::callback_list() {
 com_vec_t
 a::XtermHandler::out::callback_list() {
 	return {
-		{ {{0x1B,0x5B,0,0},{0x4B, 0,0,0} }, &erase_in_line_handler },
-		{ {{0x08,0,0,0}, {0,0,0,0}}, &backspace_handler},
-		{ {{0x07,0,0,0}, {0,0,0,0}}, &bell_handler},
+		{ {{0x1B,0x5B,0,0},{0x4B,0,0,0} }, &erase_in_line_handler },
+		{ {{0x1B,0x5D,0,0},{0x07,0,0,0} }, &set_text_parameters_handler },
+		{ {{0x08,0,0,0   },{0,0,0,0   } }, &backspace_handler},
+		{ {{0x07,0,0,0   },{0,0,0,0   } }, &bell_handler},
 	};
 }
 //-----------------------------------------------------------------------------//
@@ -80,12 +81,27 @@ a::XtermHandler::out::erase_in_line_handler(a::PtyWidget& pw,
 //-----------------------------------------------------------------------------//
 void a::XtermHandler::out::backspace_handler(a::PtyWidget& pw,
 		const param_vec_t& pv) {
+		for (const auto& elem : pv) {
+			std::cout << "elem: " << elem << "\n";
+		}
+		std::cout << std::endl;
 	// IGNORE CHAR BACKSPACE ERASE IN LINE IS WHAT HANDLES THE ERASURE OF TEXT
 	// INSIDE THE BUFFER
 }
 //-----------------------------------------------------------------------------//
 void a::XtermHandler::out::bell_handler(a::PtyWidget& pw,
 		const param_vec_t& pv) {
+	puts(__PRETTY_FUNCTION__);
 	// IGNORE BELL FOR NOW TODO IMPLEMENT
+}
+//-----------------------------------------------------------------------------//
+void a::XtermHandler::out::set_text_parameters_handler(a::PtyWidget& pw, 
+		const param_vec_t& pv) {
+	puts(__PRETTY_FUNCTION__);
+	// TODO parse the parameter and set the title
+	for (auto elem : pv) {
+		std::cout << elem << " ";
+	}
+	std::cout << std::endl;
 }
 
