@@ -7,6 +7,7 @@
 #include <type_traits>
 #include "generic_parser/error_code.hpp"
 
+
 namespace generic_parser {
 
 	template <typename context_T,
@@ -81,28 +82,23 @@ namespace generic_parser {
 					const auto& desc = pair.first;
 					if (util::possible_match(desc.begin, this->buffer_, desc.end)) {
 						if (util::strict_match(desc.begin, this->buffer_, desc.end)) {
+							util::print_hex(this->buffer_);
 							auto&& param_buf = 
 								util::get_param_vec(desc.begin, desc.end, this->buffer_);
 							std::vector<param_t> param_vec;
 							if (!util::parse_param_vec(param_buf, param_vec)) {
-								puts("XTERM OK");
 								pair.second(this->context_, param_vec); 
 								this->clear_state();
 								return ec::OK;
 							} else { 
-								puts("XTERM_FAIL");
-								std::cerr << "TRAPPED INVALID PARAMETER!!!" << std::endl;
 								this->trap_handler_(this->context_, this->buffer_);
 								this->clear_state();
 								return ec::FAIL;
 							}
 						}
-						puts("POSSIBLE MATCH");
 						return ec::OK;
 					}
-					puts("CONTINUE");
 				}
-				std::cerr << "TRAPPED NO MATCH" << std::endl;
 				this->trap_handler_(this->context_, this->buffer_);
 				this->clear_state();
 				return ec::OK;

@@ -25,6 +25,7 @@ namespace arpterm {
 			static void trap_handler(PtyWidget&, const char_vec_t&);
 			static void erase_in_line_handler(PtyWidget&, const param_vec_t&);
 			static void backspace_handler(PtyWidget&, const param_vec_t&);
+			static void bell_handler(PtyWidget&, const param_vec_t&);
 		};
 
 	};

@@ -165,8 +165,6 @@ a::PtyWidget::do_fd_read() {
 		// TODO close parent
 		return false;
 	}
-	printf("READ_BUFFER: \n");
-	au::print_hex(buf, len);
 	for (int i = 0; i < len; i++) {
 		this->xterm_out_stm_.parse(buf[i] & 0xff);
 		//this->recv_buffer_.push_back(buf[i]);

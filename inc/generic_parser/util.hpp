@@ -19,7 +19,7 @@ namespace generic_parser {
 			for (i = 0; i < size_V && arr[i] != 0; i++);
 			return i;
 		}
-
+//-----------------------------------------------------------------------------//
 		template <typename T> 
 		bool vector_compare(
 				const std::vector<T>& lhs, const std::vector<T>& rhs, size_t depth) {
@@ -31,7 +31,16 @@ namespace generic_parser {
 			}
 			return true;
 		}
-
+//-----------------------------------------------------------------------------//
+		template <typename T>
+		void print_hex(const std::vector<T>& lhs) {
+			static_assert(std::is_same<T, char>::value, "T is not char!");
+			for (auto ch : lhs) {
+				printf("%02X", ch);
+			}
+			printf("\n");
+		}
+//-----------------------------------------------------------------------------//
 		template <typename T>
 		void print_vec(const std::vector<T>& vec) {
 			std::cout << "vec: ";
@@ -40,7 +49,7 @@ namespace generic_parser {
 			}
 			std::cout << std::endl;
 		}
-
+//-----------------------------------------------------------------------------//
 		template <typename T, size_t size_V>
 		bool start_match(const std::array<T, size_V>& arr,
 				const std::vector<T>& vec, size_t depth) {
@@ -52,25 +61,26 @@ namespace generic_parser {
 			}
 			return true;
 		}
-
+//-----------------------------------------------------------------------------//
 		template <typename T, size_t size_V>
 		bool end_match(const std::array<T, size_V>& arr,
 				const std::vector<T>& vec, size_t depth ) {
 
-			int j = 0;
-			size_t k = 0;
-			for (int i = size_V-1; i >= 0 && k < depth; i--, k++) {
-				if (arr[i] == 0) { continue; }
-				const auto vec_size = vec.size();
-				if (arr[i] == vec[vec_size-1-(j)]) {
-					j++;
-					continue;
+			size_t param_len = param_arr_len(arr);
+
+			size_t min_size = std::min(depth, param_len);
+			// so we got an array like <n,m,0,0> or <0,0,0,0> or <a,b,c,d> where
+			// n,m,a,b,c,d > 0
+			int j = vec.size() -1;
+			int k = min_size -1;
+			for (size_t i = 0; i < min_size; i++,j--,k--) {
+				if (vec[j] != arr[k]) {
+					return false;
 				}
-				return false;
 			}
 			return true;
 		}
-
+//-----------------------------------------------------------------------------//
 		template <typename T, size_t size_V>
 		bool strict_match(const std::array<T, size_V>& beg, const std::vector<T>& vec,
 				const std::array<T, size_V>& end) {
@@ -81,7 +91,7 @@ namespace generic_parser {
 			const auto vec_size = vec.size();
 			return end_match(end,vec,vec_size);
 		}
-
+//-----------------------------------------------------------------------------//
 		template <typename T, size_t size_V>
 		bool possible_match(const std::array<T,size_V>& beg, const std::vector<T>& vec,
 				const std::array<T, size_V> end) {
@@ -97,14 +107,13 @@ namespace generic_parser {
 				// continues with end_sequence
 				} else if (end_match(end,vec, vec_size -1 -i)) {
 					continue;
+				} else {
+					return false;
 				}
-
 			}
+			return true;
 		}
-
-
-
-
+//-----------------------------------------------------------------------------//
 		template <typename T, size_t size_V>
 		std::vector<T> get_param_vec(const std::array<T, size_V>& begin,
 				const std::array<T, size_V>& end, const std::vector<T>& buffer) {
@@ -118,8 +127,7 @@ namespace generic_parser {
 			std::copy(beg_it + beg_size, end_it - end_size, std::back_inserter(to_vec));
 			return to_vec;
 		}
-
-
+//-----------------------------------------------------------------------------//
 		template <typename param_T, typename ret_T>
 		int parse_param_vec(
 				const std::vector<param_T>& param_buf, std::vector<ret_T>& ret_vec) {
@@ -141,6 +149,7 @@ namespace generic_parser {
 					got_elem = true;
 				} else if (CUSTOM_SEP == ch) {
 					std::cerr << "GOT_CUSTOM_SEPARATOR" << std::endl;
+					return -1;
 				} else {
 					return -2; // INVALID CHARACTER INSIDE PARAM_SEQ
 				}

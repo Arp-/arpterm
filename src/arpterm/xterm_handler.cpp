@@ -35,6 +35,7 @@ a::XtermHandler::out::callback_list() {
 	return {
 		{ {{0x1B,0x5B,0,0},{0x4B, 0,0,0} }, &erase_in_line_handler },
 		{ {{0x08,0,0,0}, {0,0,0,0}}, &backspace_handler},
+		{ {{0x07,0,0,0}, {0,0,0,0}}, &bell_handler},
 	};
 }
 //-----------------------------------------------------------------------------//
@@ -79,6 +80,12 @@ a::XtermHandler::out::erase_in_line_handler(a::PtyWidget& pw,
 //-----------------------------------------------------------------------------//
 void a::XtermHandler::out::backspace_handler(a::PtyWidget& pw,
 		const param_vec_t& pv) {
-	puts("BACKSPACE_HANDLER");
+	// IGNORE CHAR BACKSPACE ERASE IN LINE IS WHAT HANDLES THE ERASURE OF TEXT
+	// INSIDE THE BUFFER
+}
+//-----------------------------------------------------------------------------//
+void a::XtermHandler::out::bell_handler(a::PtyWidget& pw,
+		const param_vec_t& pv) {
+	// IGNORE BELL FOR NOW TODO IMPLEMENT
 }
 
