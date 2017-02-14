@@ -20,6 +20,18 @@ namespace arpterm {
 			printf("\n");
 		}
 
+		inline bool is_visual_line_term(char c) {
+			return c == '\r';
+		}
+
+		inline bool is_logical_line_term(char c) {
+			return c == '\n';
+		}
+
+		inline bool is_line_term(char c) {
+			return is_logical_line_term(c) || is_visual_line_term(c);
+		}
+
 	} // namespace util
 
 } // namesapc arpterm

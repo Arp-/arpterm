@@ -175,6 +175,7 @@ a::PtyWidget::do_fd_read() {
 		//this->recv_buffer_.push_back(buf[i]);
 	}
 	//this->recv_buffer_.append(static_cast<const char*>(buf), len);
+	au::print_hex(this->recv_buffer_.data(), this->recv_buffer_.bytes());
 	this->queue_draw();
 	return true;
 }

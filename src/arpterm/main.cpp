@@ -9,6 +9,7 @@
 //#include "arpterm/util.hpp"
 #include "arpterm/pty_handler.hpp"
 #include "arpterm/util/hash_map.hpp"
+#include "arpterm/cursor.hpp"
 #include <thread>
 
 
@@ -36,10 +37,13 @@ int main(int argc, char *argv[]) {
 
 
 	//Glib::signal_timeout().connect(sigc::bind(&close_handler, master_fd), 1000);
+	std::string str = "macska\r\nteszta";
+	a::cursor c(str);
 
-	auto& app = arpterm::MainAppBundle::get();
-	app.init(argc,argv);
-	return app.run();
+
+//	auto& app = arpterm::MainAppBundle::get();
+//	app.init(argc,argv);
+//	return app.run();
 
 }
 
