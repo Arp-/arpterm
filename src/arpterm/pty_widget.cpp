@@ -137,7 +137,7 @@ a::PtyWidget::on_draw(const Cairo::RefPtr<Cairo::Context>& cr) {
 	cr->set_source_rgb(0.9,0.0,0.0);
 	background->render_background(cr, x, y, width, height);
 	au::set_cairo_color(cr,this->state_.font_color);
-	Pango::FontDescription font;
+	Pango::FontDescription font; // NOTE from here i can get some indication on the average character width
 	font.set_family("Monospace");
 	//font.set_weight(Pango::WEIGHT_BOLD);
 	auto layout = create_pango_layout(this->recv_buffer_);

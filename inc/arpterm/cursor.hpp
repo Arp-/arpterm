@@ -15,7 +15,11 @@ namespace arpterm {
 	template <typename string_T>
 	class cursor {
 
-		using char_T = typename string_T::CharT;
+		using char_T = typename string_T::value_type;
+		using iterator_T = typename string_T::iterator;
+
+		static constexpr char_T VISUAL_LINE_TERM = '\r';
+		static constexpr char_T LOGICAL_LINE_TERM = '\n';
 
 		struct choord_t { 
 			unsigned x;
@@ -25,72 +29,96 @@ namespace arpterm {
 		public: //-- public functions --//
 
 			cursor(string_T& str):
-				buffer_(str) {
+				buffer_(str), index_(str.size()) {
 
 			}
 
 			~cursor() = default;
 
-			// negative direction goes up, positive goes down?
-			void move_row(int direction) {
-				unsigned chars_from_line_start = this->chars_from_line_start();
-				char* nth_line_start = this->nth_line_start(direction);
+			void move_to_line_begin() {
+				std::cout << "col_pos: " << this->column_position() << std::endl;
+				this->index_ -= this->column_position();
+				std::cout << "index: " << this->index_ << std::endl;
 			}
 
-			// negative direction goes left, positive goes rigth?
-			void move_column(int direction) {
+			void move_cur_up(size_t count) {
+				size_t col = this->column_position();
+				for (size_t i = 0; i < count; i++) {
+					this->move_to_prev_line_end();
+					std::cout << "line_beg: " << this->index_ << std::endl;
+				}
+				std::cout << "index: " << this->index_ << std::endl;
+				size_t row_end = this->column_position();
+				std::cout << "COL: " << col << std::endl;
+				std::cout << "index: " << this->index_ << std::endl;
+				std::cout << "ROW_END: " << row_end << std::endl;
+				size_t col_diff = std::abs((long int)col - (long int)row_end);
+				std::cout << "COL_DIFF: " << col_diff << std::endl;
+				if (col > row_end) {
+					this->buffer_.insert(row_end+1, col_diff, ' ');
+					this->index_ += col_diff;
+				} else if (this->index_ > (col_diff)) {
+					this->index_ -= col_diff;
+				} else {
+					this->index_ = 0;
+				}
+			}
 
+			void move_cur_down(size_t count);
+
+			void move_cur_right(size_t count);
+
+			void move_cur_left(size_t count);
+
+			size_t index() { 
+				return this->index_;
 			}
 
 
 		private: //-- private functions --//
 
-			inline char_T* buffer_end() { 
-				return this->buffer_[this->buffer_.size()-1];
-			}
-
-			inline char_T* buffer_start() {
-				return &(this->buffer_[0]);
-			}
-
-			inline bool is_buf_start(char_T* ch) {
-				return ch == this->buffer_start();
-			}
-
-			unsigned chars_from_line_start() {
-				unsigned count = 0;
-				for (long int i = this->buffer_.size()-1; 
-						i >= 0 && util::is_line_term(this->buffer_[i]);
-						i--, count++);
-				return count;
-			}
-
-			char_T* move_to_visual_line_start(char_T* pos) {
-				do {
-					--pos;
-				} while (!util::is_visual_line_term(*pos) && !is_buf_start(pos));
-				if (is_visual_line_term(*pos)) {
-					return (++pos);
+			void move_to_prev_line_end() {
+				this->move_to_line_begin();
+				if (this->index_ != 0) {
+					this->index_--;
 				}
-				return pos;
+				this->skip_line_term_backwards();
 			}
 
-			char_T* nth_line_start(int direction) { 
-				char_T* line_start = this->buffer_end();
-				if (direction >= 0) {
-					for (int i = 0; i <= direction; i++) {
-						line_start = move_to_visual_line_start(line_start);
-					}
-				} else if (direction < 1) {
-
+			void skip_line_term_backwards() {
+				while (this->is_line_term(this->buffer_[this->index_])
+						&& this->index_ != 0) {
+					this->index_--;
+					std::cout << "ltb, index: " << this->index_ << std::endl;
 				}
-
 			}
+
+			bool is_line_term(char_T c) const {
+				return c == VISUAL_LINE_TERM || c == LOGICAL_LINE_TERM;
+			}
+
+			size_t column_position() const {
+				size_t p = this->index_;
+				if (p == this->buffer_.size()) {
+					p--;
+				}
+				if (is_line_term(this->buffer_[p])) {
+					p--;
+				}
+				while (!this->is_line_term(this->buffer_[p]) && 
+						p != 0) {
+					p--;
+				}
+				return this->index_ - (p+1);
+			}
+
 
 
 		private: //-- private variables --//
 
 			string_T& buffer_;
+
+			size_t index_;
 
 
 

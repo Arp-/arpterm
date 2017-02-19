@@ -15,6 +15,7 @@
 
 namespace au = arpterm::util;
 namespace ap = arpterm::pty;
+namespace a = arpterm;
 
 
 static std::unique_ptr<Gtk::Window> new_window_ref_ { nullptr };
@@ -38,7 +39,16 @@ int main(int argc, char *argv[]) {
 
 	//Glib::signal_timeout().connect(sigc::bind(&close_handler, master_fd), 1000);
 	std::string str = "macska\r\nteszta";
-	a::cursor c(str);
+	a::cursor<std::string> c(str);
+	std::cout << str << std::endl;
+	std::cout << "index: " << c.index() << std::endl;
+	c.move_cur_up(1);
+	std::cout << "index: " << c.index() << std::endl;
+	std::cout << "str[i]: " << str[c.index()] << std::endl;
+	str[c.index()] = 'p';
+	std::cout << str << std::endl;
+	std::cout << "strlen: " << str.size() << std::endl;
+
 
 
 //	auto& app = arpterm::MainAppBundle::get();
