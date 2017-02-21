@@ -42,12 +42,23 @@ int main(int argc, char *argv[]) {
 	a::cursor<std::string> c(str);
 	std::cout << str << std::endl;
 	std::cout << "index: " << c.index() << std::endl;
-	c.move_cur_up(1);
+	std::cout << "column_i: " << c.column_index() << std::endl;
+	c.move_cur_up(2);
+	//c.move_to_line_end();
 	std::cout << "index: " << c.index() << std::endl;
-	std::cout << "str[i]: " << str[c.index()] << std::endl;
-	str[c.index()] = 'p';
 	std::cout << str << std::endl;
-	std::cout << "strlen: " << str.size() << std::endl;
+	printf("frst: %02X\n", str[0]);
+	printf("frst: %02X\n", str[1]);
+	printf("frst: %02X\n", str[2]);
+	printf("frst: %02X\n", str[3]);
+	printf("frst: %02X\n", str[4]);
+	printf("frst: %02X\n", str[5]);
+	//c.move_to_line_beg();
+	//std::cout << "index: " << c.index() << std::endl;
+	//std::cout << "char: " << str[c.index()] << std::endl;
+	//c.move_to_prev_line_end();
+	//std::cout << "index: " << c.index() << std::endl;
+	//std::cout << "column_i: " << c.column_index() << std::endl;
 
 
 

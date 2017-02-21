@@ -35,33 +35,22 @@ namespace arpterm {
 
 			~cursor() = default;
 
-			void move_to_line_begin() {
-				std::cout << "col_pos: " << this->column_position() << std::endl;
-				this->index_ -= this->column_position();
-				std::cout << "index: " << this->index_ << std::endl;
-			}
 
 			void move_cur_up(size_t count) {
-				size_t col = this->column_position();
+				size_t col = this->column_index();
 				for (size_t i = 0; i < count; i++) {
 					this->move_to_prev_line_end();
-					std::cout << "line_beg: " << this->index_ << std::endl;
 				}
-				std::cout << "index: " << this->index_ << std::endl;
-				size_t row_end = this->column_position();
-				std::cout << "COL: " << col << std::endl;
-				std::cout << "index: " << this->index_ << std::endl;
-				std::cout << "ROW_END: " << row_end << std::endl;
-				size_t col_diff = std::abs((long int)col - (long int)row_end);
-				std::cout << "COL_DIFF: " << col_diff << std::endl;
-				if (col > row_end) {
-					this->buffer_.insert(row_end+1, col_diff, ' ');
-					this->index_ += col_diff;
-				} else if (this->index_ > (col_diff)) {
-					this->index_ -= col_diff;
-				} else {
-					this->index_ = 0;
+				size_t newcol = this->column_index();
+				std::cout << "col: " << col << std::endl;
+				std::cout << "newcol: " << newcol << std::endl;
+				if (col > newcol) {
+					// add col-newcol spaces
+					this->buffer_.insert(this->index_, col - newcol, 
+							static_cast<char_T>(' '));
+					return;
 				}
+				this->index_ -= (newcol - col);
 			}
 
 			void move_cur_down(size_t count);
@@ -75,42 +64,79 @@ namespace arpterm {
 			}
 
 
-		private: //-- private functions --//
+		public: //-- private functions --//
 
-			void move_to_prev_line_end() {
-				this->move_to_line_begin();
-				if (this->index_ != 0) {
-					this->index_--;
-				}
-				this->skip_line_term_backwards();
+			bool is_visual_line_term(char_T c) const {
+				return c == VISUAL_LINE_TERM;
 			}
 
-			void skip_line_term_backwards() {
-				while (this->is_line_term(this->buffer_[this->index_])
-						&& this->index_ != 0) {
-					this->index_--;
-					std::cout << "ltb, index: " << this->index_ << std::endl;
-				}
+			bool is_logical_line_term(char_T c) const {
+				return c == LOGICAL_LINE_TERM;
 			}
 
 			bool is_line_term(char_T c) const {
-				return c == VISUAL_LINE_TERM || c == LOGICAL_LINE_TERM;
+				return is_logical_line_term(c) || is_visual_line_term(c);
 			}
 
-			size_t column_position() const {
-				size_t p = this->index_;
-				if (p == this->buffer_.size()) {
-					p--;
-				}
-				if (is_line_term(this->buffer_[p])) {
-					p--;
-				}
-				while (!this->is_line_term(this->buffer_[p]) && 
-						p != 0) {
-					p--;
-				}
-				return this->index_ - (p+1);
+
+			void move_to_next_line_end() {
+				this->move_to_line_end();
+				size_t i = this->index_;
 			}
+
+			void move_to_line_end() {
+				size_t i = this->index_;
+				const size_t buf_size = this->buffer_.size();
+				if (this->index_ == buf_size) {
+					return;
+				}
+				while (!is_line_term(this->buffer_[i+1]) && (i+1) != buf_size) {
+					i++;
+					std::cout << "i: " << i << std::endl;
+					std::cout << "bufi: " << this->buffer_[i] << std::endl;
+				}
+				if ((i+1) == buf_size) {
+					i++;
+				}
+				this->index_ = i;
+			}
+
+			void move_to_line_beg() {
+				this->index_ -= column_index();
+			}
+
+			// moves to \r character
+			// NOTE there must be a previous line othervise it goes to the first
+			// character
+			void move_to_prev_line_end() { 
+				this->move_to_line_beg();
+				std::cout << "ind: " << this->index_ << std::endl;
+				size_t i = this->index_;
+				while (is_line_term(this->buffer_[i-1]) && (i-1) != 0 && i != 0) {
+					i--;
+				}
+				if ((i-1) == 0 || i == 0) {
+					this->buffer_.insert(0, 1, static_cast<char_T>('\r'));
+					i = 0;
+					printf("first: %02x\n", this->buffer_[0] & 0xff);
+				}
+				this->index_ = i;
+			}
+
+			size_t column_index() const {
+				if (this->index_ == 0 ) {
+					return 0;
+				}
+				size_t i = this->index_;
+				while (!is_line_term(this->buffer_[i-1]) && (i-1) != 0) {
+					i--;
+				}
+				if ((i-1) == 0) {
+					i--;
+				}
+				return this->index_ - i;
+			}
+
 
 
 
