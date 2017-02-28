@@ -82,3 +82,18 @@ solution "arpterm"
 		excludes { 
 		--	src_dir .. "generic_parser/main.cpp"
 		}
+--[[-------------------------------------------------------------------------]]--
+	project "test"
+	kind "consoleApp"
+	language "C++"
+	includedirs {
+		inc_dir
+	}
+
+	files {
+		src_dir .. "test/**.cpp",
+	}
+
+	excludes {
+
+	}
