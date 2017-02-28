@@ -11,6 +11,7 @@
 #include "arpterm/util/hash_map.hpp"
 #include "arpterm/cursor.hpp"
 #include <thread>
+#include <cstdio>
 
 
 namespace au = arpterm::util;
@@ -25,10 +26,29 @@ inline Glib::RefPtr<T> make_ref (Args&& ...args) {
 	return Glib::RefPtr<T>(new T(std::forward<Args>(args)...));
 }
 
-//void signal(int sig) {
-//	printf("SALLED SIGGTOU\n");
-//}
+std::string newlinify(const std::string& str) {
+	std::string copy = str;
+	for (auto it = copy.begin(); it != copy.end(); ++it) {
+		if (*it == '\r' && *(it+1) == '\n') {
+			copy.erase(it);
+		} else if (*it == '\r') {
+			*it = '\n';
+		} 
+	}
+	return copy;
+}
 
+void print_by_char(const std::string& str) {
+	for (const auto& ch : str) {
+		if (ch == 0x20) {
+			printf(" ");
+		} else if (ch == '\r') {
+			printf("\n");
+		} else {
+			printf("%c", ch & 0xff);
+		}
+	}
+}
 
 //-----------------------------------------------------------------------------//
 int main(int argc, char *argv[]) {
@@ -40,19 +60,20 @@ int main(int argc, char *argv[]) {
 	//Glib::signal_timeout().connect(sigc::bind(&close_handler, master_fd), 1000);
 	std::string str = "macska\r\nteszta";
 	a::cursor<std::string> c(str);
+	std::cout << "----" << std::endl;
 	std::cout << str << std::endl;
 	std::cout << "index: " << c.index() << std::endl;
 	std::cout << "column_i: " << c.column_index() << std::endl;
 	c.move_cur_up(2);
 	//c.move_to_line_end();
 	std::cout << "index: " << c.index() << std::endl;
+	std::cout << "----" << std::endl;
 	std::cout << str << std::endl;
-	printf("frst: %02X\n", str[0]);
-	printf("frst: %02X\n", str[1]);
-	printf("frst: %02X\n", str[2]);
-	printf("frst: %02X\n", str[3]);
-	printf("frst: %02X\n", str[4]);
-	printf("frst: %02X\n", str[5]);
+	std::cout << newlinify(str) << std::endl;
+	c.move_cur_right(20);
+	str[c.index()] = 'c';
+	std::cout << "----" << std::endl;
+	std::cout << newlinify(str) << std::endl;
 	//c.move_to_line_beg();
 	//std::cout << "index: " << c.index() << std::endl;
 	//std::cout << "char: " << str[c.index()] << std::endl;
@@ -62,9 +83,9 @@ int main(int argc, char *argv[]) {
 
 
 
-//	auto& app = arpterm::MainAppBundle::get();
-//	app.init(argc,argv);
-//	return app.run();
+	auto& app = arpterm::MainAppBundle::get();
+	app.init(argc,argv);
+	return app.run();
 
 }
 

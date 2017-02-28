@@ -42,8 +42,6 @@ namespace arpterm {
 					this->move_to_prev_line_end();
 				}
 				size_t newcol = this->column_index();
-				std::cout << "col: " << col << std::endl;
-				std::cout << "newcol: " << newcol << std::endl;
 				if (col > newcol) {
 					// add col-newcol spaces
 					this->buffer_.insert(this->index_, col - newcol, 
@@ -53,9 +51,26 @@ namespace arpterm {
 				this->index_ -= (newcol - col);
 			}
 
-			void move_cur_down(size_t count);
+			void move_cur_down(size_t count) {
+				size_t col = this->colum_index();
+				for (size_t i = 0; i < count; i++) {
+					this->move_to_line_end();
+				}
+			}
 
-			void move_cur_right(size_t count);
+			void move_cur_right(size_t count) {
+				for (size_t i = 0; i < count; i++, this->index_++) {
+					if (this->index_ == (this->buffer_.size() -1)) {
+						this->buffer_.push_back(' ');
+					}
+					std::cout << "index: " << this->index_ << std::endl;
+					if (is_line_term(this->buffer_[this->index_])) {
+						std::cout << "is_line_term" << std::endl;
+						this->buffer_.insert(this->index_, 1, static_cast<char_T>(' '));
+					}
+				}
+				this->index_--;
+			}
 
 			void move_cur_left(size_t count);
 
@@ -85,24 +100,20 @@ namespace arpterm {
 			}
 
 			void move_to_line_end() {
+
+			}
+
+			size_t inverse_column_index() const {
 				size_t i = this->index_;
-				const size_t buf_size = this->buffer_.size();
-				if (this->index_ == buf_size) {
-					return;
-				}
-				while (!is_line_term(this->buffer_[i+1]) && (i+1) != buf_size) {
-					i++;
-					std::cout << "i: " << i << std::endl;
-					std::cout << "bufi: " << this->buffer_[i] << std::endl;
-				}
-				if ((i+1) == buf_size) {
+				size_t logical_line_term_count = 0;
+				while (!is_line_term(this->buffer_[i]) && i < this->buffer_.size()) {
 					i++;
 				}
-				this->index_ = i;
+				return this->index_ - i;
 			}
 
 			void move_to_line_beg() {
-				this->index_ -= column_index();
+				this->index_ -= this->column_index();
 			}
 
 			// moves to \r character
@@ -110,7 +121,6 @@ namespace arpterm {
 			// character
 			void move_to_prev_line_end() { 
 				this->move_to_line_beg();
-				std::cout << "ind: " << this->index_ << std::endl;
 				size_t i = this->index_;
 				while (is_line_term(this->buffer_[i-1]) && (i-1) != 0 && i != 0) {
 					i--;
@@ -118,7 +128,6 @@ namespace arpterm {
 				if ((i-1) == 0 || i == 0) {
 					this->buffer_.insert(0, 1, static_cast<char_T>('\r'));
 					i = 0;
-					printf("first: %02x\n", this->buffer_[0] & 0xff);
 				}
 				this->index_ = i;
 			}
