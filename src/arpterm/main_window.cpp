@@ -51,12 +51,12 @@ a::MainWindow::on_key_pressed(GdkEventKey* ev_key) {
 bool
 a::MainWindow::on_event(GdkEvent* ev_key) {
 	//std::cout << __PRETTY_FUNCTION__ << std::endl;
-	if (ev_key->type == Gdk::EventType::KEY_PRESS) {
+	if (static_cast<Gdk::EventType>(ev_key->type) == Gdk::EventType::KEY_PRESS) {
 		this->on_key_pressed(reinterpret_cast<GdkEventKey*>(ev_key));
-	} else if (ev_key->type == Gdk::EventType::EXPOSE) {
+	} else if (static_cast<Gdk::EventType>(ev_key->type) == Gdk::EventType::EXPOSE) {
 		this->queue_draw();
 		this->show_all_children();
-	} else if (ev_key->type == Gdk::EventType::CONFIGURE) {
+	} else if (static_cast<Gdk::EventType>(ev_key->type) == Gdk::EventType::CONFIGURE) {
 		this->on_configure_event(reinterpret_cast<GdkEventConfigure*>(ev_key));
 	}
 	return true;

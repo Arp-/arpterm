@@ -1,8 +1,12 @@
 
 
+#define CATCH_CONFIG_MAIN
+#include "catch.hpp"
 #include <iostream>
 
-
-int main() {
-	printf("Hello ghacifej\n");
+TEST_CASE("the truth") {
+	REQUIRE( 0 == 0 );
 }
+
+
+

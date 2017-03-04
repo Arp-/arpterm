@@ -58,6 +58,7 @@ solution "arpterm"
 			"`pkg-config --cflags gtkmm-3.0`",
 			"-std=c++14",
 			"-Wall",
+			"--pedantic",
 		}
 		linkoptions {
 			"`pkg-config --libs gtkmm-3.0`"
@@ -87,7 +88,8 @@ solution "arpterm"
 	kind "consoleApp"
 	language "C++"
 	includedirs {
-		inc_dir
+		inc_dir,
+		"ext/Catch/single_include"
 	}
 
 	files {

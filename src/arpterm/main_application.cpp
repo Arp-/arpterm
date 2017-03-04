@@ -30,7 +30,7 @@ at::MainAppBundle::run() {
 	//	decltype(*(this->window_vec_.back()))>::type, at::MainWindow>::value);
 
 //	printf("type: %s\n", (good_type?"true":"false"));
-	printf("%p\n", this->window_vec_.back().get());
+	//printf("%p\n", this->window_vec_.back().get());
 	return this->app_->run(*(this->window_vec_.back()));
 }
 //-----------------------------------------------------------------------------//

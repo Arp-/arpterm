@@ -63,7 +63,7 @@ int main(int argc, char *argv[]) {
 	std::cout << "----" << std::endl;
 	std::cout << str << std::endl;
 	std::cout << "index: " << c.index() << std::endl;
-	std::cout << "column_i: " << c.column_index() << std::endl;
+	std::cout << "column_i: " << c.column_distance() << std::endl;
 	c.move_cur_up(2);
 	//c.move_to_line_end();
 	std::cout << "index: " << c.index() << std::endl;
@@ -74,18 +74,19 @@ int main(int argc, char *argv[]) {
 	str[c.index()] = 'c';
 	std::cout << "----" << std::endl;
 	std::cout << newlinify(str) << std::endl;
+	std::cout << c.column_distance() << std::endl;
 	//c.move_to_line_beg();
 	//std::cout << "index: " << c.index() << std::endl;
 	//std::cout << "char: " << str[c.index()] << std::endl;
 	//c.move_to_prev_line_end();
 	//std::cout << "index: " << c.index() << std::endl;
-	//std::cout << "column_i: " << c.column_index() << std::endl;
+	//std::cout << "column_i: " << c.column_distance() << std::endl;
 
 
 
-	auto& app = arpterm::MainAppBundle::get();
-	app.init(argc,argv);
-	return app.run();
+	//auto& app = arpterm::MainAppBundle::get();
+	//app.init(argc,argv);
+	//return app.run();
 
 }
 
