@@ -42,16 +42,18 @@ namespace arpterm {
 				for (size_t i = 0; i < count; i++) {
 					this->prev_visual_line_term();
 				}
-				if (this->index_ == 0 || is_line_term(this->buffer_[this->index_-1])) {
+				bool is_ln_term = is_line_term(this->buffer_[this->index_-1]);
+				if (this->index_ == 0 || is_ln_term) {
 					this->buffer_.insert(this->index_, 1, static_cast<char_T>(' '));
 				}
-				this->index_--;
+				if (this->index_ != 0) {
+					this->index_--;
+				}
 				std::cout << AT_DBG(this->index_) << std::endl;
 				size_t new_col = this->column_distance();
-				std::cout << AT_DBG(new_col) << std::endl;
 				std::cout << AT_DBG(prev_col) << std::endl;
+				std::cout << AT_DBG(new_col) << std::endl;
 				int col_diff = prev_col - new_col;
-				std::cout << AT_DBG(col_diff) << std::endl;
 				if (prev_col > new_col) { 
 					this->buffer_.insert(
 							this->index_ + 1, col_diff, static_cast<char_T>(' '));
@@ -62,12 +64,44 @@ namespace arpterm {
 			}
 
 			void move_cur_down(size_t count) {
+				size_t prev_col = this->column_distance();
+				for (size_t i = 0; i < count; i++) {
+					this->next_visual_line_term();
+				}
+				if (is_visual_line_term(this->buffer_[this->index_])) {
+					this->index_++;
+				}
+				if (is_logical_line_term(this->buffer_[this->index_])) {
+					this->index_++;
+				}
+				std::cout << AT_DBG(prev_col) << std::endl;
+				for (size_t i = 0; i < (prev_col-1); i++) {
+					if (this->index_ == this->buffer_.size()) {
+						this->buffer_.insert(this->index_, 1, ' ');
+					}
+					this->index_++;
+				}
 			}
 
 			void move_cur_right(size_t count) {
+				for (size_t i = 0; i < count; i++) {
+					if (is_line_term(this->buffer_[this->index_]) ||
+								this->index_ == this->buffer_.size()) {
+						this->buffer_.insert(this->index_, 1, ' ');
+					}
+					this->index_++;
+				}
 			}
 
-			void move_cur_left(size_t count);
+			void move_cur_left(size_t count) {
+				for (size_t i = 0; i < count; i++) {
+					if (is_line_term(this->buffer_[this->index_-1]) || this->index_ == 0) {
+						this->buffer_.insert(this->index_, 1, ' ');
+					} else {
+						this->index_--;
+					}
+				}
+			}
 
 			size_t index() { 
 				return this->index_;
@@ -88,6 +122,7 @@ namespace arpterm {
 				return is_logical_line_term(c) || is_visual_line_term(c);
 			}
 
+			// Column distance indexing starts with 1
 			size_t column_distance() const {
 				size_t i = this->index_;
 				for (i = this->index_; i > 0 && !is_line_term(this->buffer_[i]); i--);
@@ -108,21 +143,19 @@ namespace arpterm {
 
 			void prev_visual_line_term() {
 				size_t i = this->index_;
-				if (is_logical_line_term(this->buffer_[i])) {
+				if (is_logical_line_term(this->buffer_[i]) && i != 0) {
 					i--;
 				}
-				if (is_visual_line_term(this->buffer_[i])) {
+				if (is_visual_line_term(this->buffer_[i]) && i != 0) {
 					i--;
 				}
 				for (; i != 0 && !is_line_term(this->buffer_[i]); i--);
-				std::cout << AT_DBG(i) << std::endl;
 				if (i == 0) {
 					this->buffer_.insert(i, 1, static_cast<char_T>('\r'));
 				}
 				if (is_logical_line_term(this->buffer_[i])) {
 					i--;
 				}
-				std::cout << AT_DBG(i) << std::endl;
 				this->index_ = i;
 			}
 

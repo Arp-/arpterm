@@ -2,6 +2,7 @@
 #include "catch.hpp"
 #include <iostream>
 #include "arpterm/cursor.hpp"
+#include "test/test_util.hpp"
 
 namespace a = arpterm;
 
@@ -9,15 +10,8 @@ static constexpr auto make_test_string() {
 	return "macska\r\nteszta";
 }
 
-static void str_hex_print(const std::string& str) {
 
-	for (auto ch : str) {
-		printf("%02X", ch & 0xff);
-	}
-	printf("\n");
-}
-
-TEST_CASE("cursor_test") {
+TEST_CASE("cursor_up_test") {
 	std::string&& str = make_test_string();
 	a::cursor<std::string> c(str);
 
@@ -44,7 +38,6 @@ TEST_CASE("cursor_test") {
 	SECTION("move_cur_up_1") {
 		c.move_cur_up(1);
 		REQUIRE(c.index() == 6);
-		// in this case it shouldnot modify the strings length
 	}
 
 	SECTION("move_cur_up_2") {
@@ -52,6 +45,37 @@ TEST_CASE("cursor_test") {
 		c.move_cur_up(2);
 		REQUIRE(c.index() == 6);
 		REQUIRE(str.size() > strlen + 6);
+		REQUIRE(test_util::str_n_cmp(str, "      ", 6));
+	}
 
+	SECTION("move_cur_up_10") {
+		size_t strlen = str.size();
+		c.move_cur_up(10);
+		REQUIRE(c.index() == 6);
+		REQUIRE(str.size() > strlen + 6);
+		REQUIRE(test_util::str_n_cmp(str, "      ", 6));
+	}
+
+	SECTION("prev_line_term_10_times") {
+		for (int i = 0; i < 10; i++) {
+			c.prev_visual_line_term();
+		}
+	}
+}
+
+
+TEST_CASE("cursor_down_test") {
+	std::string&& str = make_test_string();
+	a::cursor<std::string> c(str);
+
+	SECTION("next_line_term_10_times") {
+		for (int i = 0; i < 10; i++) {
+			c.next_visual_line_term();
+		}
+	}
+
+	SECTION("move_cur_down_1") {
+		c.move_cur_down(1);
+		test_util::str_hex_print(str);
 	}
 }
