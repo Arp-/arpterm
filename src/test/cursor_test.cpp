@@ -72,6 +72,9 @@ TEST_CASE("cursor_down_test") {
 		for (int i = 0; i < 10; i++) {
 			c.next_visual_line_term();
 		}
+		printf("str: ");
+		test_util::str_hex_print(str);
+		REQUIRE(test_util::str_n_cmp(&(str[str.size()-10]), "\r\r\r\r\r\r\r\r\r\r", 10));
 	}
 
 	SECTION("move_cur_down_1") {

@@ -11,6 +11,9 @@ namespace test_util {
 	bool str_n_cmp(
 			const std::string& str1, const std::string& str2, unsigned n);
 
+	bool str_tail_n_cmp(
+			const std::string& str1, const std::string& str2, unsigned n);
+
 }
 
 
