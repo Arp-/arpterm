@@ -74,11 +74,13 @@ TEST_CASE("cursor_down_test") {
 		}
 		printf("str: ");
 		test_util::str_hex_print(str);
-		REQUIRE(test_util::str_n_cmp(&(str[str.size()-10]), "\r\r\r\r\r\r\r\r\r\r", 10));
+		REQUIRE(test_util::str_tail_n_cmp(str, "\r\r\r\r\r\r\r\r\r\r", 10));
 	}
 
 	SECTION("move_cur_down_1") {
 		c.move_cur_down(1);
 		test_util::str_hex_print(str);
+		REQUIRE(test_util::str_tail_n_cmp(str, "\r      ", 7));
 	}
+
 }

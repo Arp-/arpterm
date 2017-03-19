@@ -56,7 +56,6 @@ a::XtermHandler::out::trap_handler(a::PtyWidget& pw,
 	auto& recv_buf = pw.recv_buffer_;
 	
 	for (const auto& ch : cv) {
-		// static cast because otherwise it'll be a gunichar overloded one
 		recv_buf.push_back(ch); 
 	}
 }
@@ -65,6 +64,9 @@ void
 a::XtermHandler::out::erase_in_line_handler(a::PtyWidget& pw,
 		const param_vec_t& pv) {
 	puts("ERASE_IN_LINE_HANDLER");
+	// NOTE if i'm doing stuff with the cursor then i'll need to rework these
+	// functions probably i mean if i'm in the midle of a text then the 
+	// erase in line will probably not work that well
 	for (const auto& elem : pv) {
 		std::cout << "vec: " << elem << std::endl;
 	}

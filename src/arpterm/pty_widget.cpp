@@ -28,6 +28,7 @@ a::PtyWidget::PtyWidget() :
 		xterm_out_stm_(*this,
 				XtermHandler::out::callback_list(), &XtermHandler::out::trap_handler),
 		master_fd_(0),
+//		cursor_(this->recv_buffer_), 
 		state_() { 
 	this->set_has_window(false); // this is important!!!
 	this->master_fd_ = ap::start_pt_master_slave();

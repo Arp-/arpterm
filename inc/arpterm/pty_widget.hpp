@@ -9,6 +9,7 @@
 #include "arpterm/util/type.hpp"
 #include "arpterm/default.hpp"
 #include "arpterm/util/rgba_t.hpp"
+//#include "arpterm/cursor.hpp"
 
 namespace arpterm {
 
@@ -90,6 +91,8 @@ namespace arpterm {
 			com_parser_t xterm_out_stm_;
 
 			arpterm::util::type::fd_t master_fd_;
+
+			//arpterm::cursor<decltype(recv_buffer_)> cursor_;
 
 			state state_;
 

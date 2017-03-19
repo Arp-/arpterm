@@ -20,7 +20,7 @@ namespace arpterm {
 		using iterator_T = typename string_T::iterator;
 
 		static constexpr char_T VISUAL_LINE_TERM = '\r';
-		static constexpr char_T LOGICAL_LINE_TERM = '\n';
+		static constexpr char_T CHARS_TO_IGNORE = '\n';
 
 		struct choord_t { 
 			unsigned x;
@@ -37,75 +37,36 @@ namespace arpterm {
 			~cursor() = default;
 
 
-			void move_cur_up(size_t count) {
-				size_t prev_col = this->column_distance();
-				for (size_t i = 0; i < count; i++) {
-					this->prev_visual_line_term();
-				}
-				bool is_ln_term = is_line_term(this->buffer_[this->index_-1]);
-				if (this->index_ == 0 || is_ln_term) {
-					this->buffer_.insert(this->index_, 1, static_cast<char_T>(' '));
-				}
-				if (this->index_ != 0) {
-					this->index_--;
-				}
-				std::cout << AT_DBG(this->index_) << std::endl;
-				size_t new_col = this->column_distance();
-				std::cout << AT_DBG(prev_col) << std::endl;
-				std::cout << AT_DBG(new_col) << std::endl;
-				int col_diff = prev_col - new_col;
-				if (prev_col > new_col) { 
-					this->buffer_.insert(
-							this->index_ + 1, col_diff, static_cast<char_T>(' '));
-					this->index_ += col_diff;
-				} else {
-					this->index_ += col_diff;
-				}
+			void push_back(const char_T& ch) {
+
+				this->buffer_.assign(this->index_,ch);
+				this->move_cur_right(1);
 			}
 
-			void move_cur_down(size_t count) {
-				size_t prev_col = this->column_distance();
-				for (size_t i = 0; i < count; i++) {
-					this->next_visual_line_term();
+			void erase() {
+				//this->buffer_[this->index_] = ' ';
+			}
+
+			void mv_cur_up(size_t n) {
+				size_t col_index = this->column_index();
+				for (size_t i = 0; i < n; i++) {
+					this->mv_prev_line_term();
 				}
-				if (is_visual_line_term(this->buffer_[this->index_])) {
-					this->index_++;
-				}
-				if (is_logical_line_term(this->buffer_[this->index_])) {
-					this->index_++;
-				}
-				std::cout << AT_DBG(prev_col) << std::endl;
-				for (size_t i = 0; i < (prev_col-1); i++) {
-					if (this->index_ == this->buffer_.size()) {
-						this->buffer_.insert(this->index_, 1, ' ');
+				this->index_++; // because we're at \r;
+				size_t i = this->index_;
+				for (; i < col_index && i < this->bufer_.size(); i++) {
+					char_T cur_char = this->buffer_[i];
+					if (is_char_to_ignore(cur_char)) {
+						col_index++;
 					}
-					this->index_++;
-				}
-			}
-
-			void move_cur_right(size_t count) {
-				for (size_t i = 0; i < count; i++) {
-					if (is_line_term(this->buffer_[this->index_]) ||
-								this->index_ == this->buffer_.size()) {
-						this->buffer_.insert(this->index_, 1, ' ');
-					}
-					this->index_++;
-				}
-			}
-
-			void move_cur_left(size_t count) {
-				for (size_t i = 0; i < count; i++) {
-					if (is_line_term(this->buffer_[this->index_-1]) || this->index_ == 0) {
-						this->buffer_.insert(this->index_, 1, ' ');
-					} else {
-						this->index_--;
+					if (is_visual_line_term(this->buffer_[i])) {
+						this->buffer_.insert(i, static_cast<char_T>(' '));
 					}
 				}
+				this->index_ = i;
 			}
 
-			size_t index() { 
-				return this->index_;
-			}
+
 
 
 		public: //-- private functions --//
@@ -114,50 +75,47 @@ namespace arpterm {
 				return c == VISUAL_LINE_TERM;
 			}
 
-			bool is_logical_line_term(char_T c) const {
-				return c == LOGICAL_LINE_TERM;
+			bool is_char_to_ignore(char_T c) const {
+				return c == CHARS_TO_IGNORE;
 			}
 
-			bool is_line_term(char_T c) const {
-				return is_logical_line_term(c) || is_visual_line_term(c);
-			}
 
-			// Column distance indexing starts with 1
-			size_t column_distance() const {
+			// NOTE This calculates every character from the latest \r or 0
+			// that means this will be inconsistent fuck when one line is terminated
+			// by \r\n and the other is terminated by \r
+			size_t column_index() const {
 				size_t i = this->index_;
-				for (i = this->index_; i > 0 && !is_line_term(this->buffer_[i]); i--);
-				if (i == 0) { return this->index_ - i +1; }
-				return this->index_ - i;
+				size_t chars_ignored = 0;
+				for (; i > 0; && !is_visual_line_term(this->buffer_[i]); i--) {
+					if (is_char_to_ignore(this->buffer_[i])) {
+						chars_ignored++;
+					}
+				}
+				if (this->index_ == 0 && !is_visual_line_term(i)) {
+					return this->index_ -i + chars_ignored +1;
+				}
+				return this->index_ -i + chars_ignored; // the "real column index"
 			}
 
-			void next_visual_line_term() { 
+			void mv_prev_line_term() {
 				size_t i = this->index_;
-				if (is_visual_line_term(this->buffer_[i])) { i++; }
-				if (is_logical_line_term(this->buffer_[i])) { i++; }
-				for (; i < this->buffer_.size() && !is_line_term(this->buffer_[i]); i++);
+				for (; i > 0 && !is_visual_line_term(this->buffer_[i]); i--);
+				if (i == 0 && !is_visual_line_term()) {
+					this->buffer_.insert(i, static_cast<char_T>(VISUAL_LINE_TERM));
+				}
+				this->index_ = i;
+			}
+
+			void mv_next_line_term() {
+				size_t i = this->index_;
+				size_t buf_size = this->buffer_.size();
+				for (; i < buf_size && !is_visual_line_term(this->buffer_[i]); i++);
 				if (i == this->buffer_.size()) {
-					this->buffer_.push_back('\r'); // add a new visual_line_term
+					this->buffer_.insert(i, static_cast<char_T>(VISUAL_LINE_TERM));
 				}
 				this->index_ = i;
 			}
 
-			void prev_visual_line_term() {
-				size_t i = this->index_;
-				if (is_logical_line_term(this->buffer_[i]) && i != 0) {
-					i--;
-				}
-				if (is_visual_line_term(this->buffer_[i]) && i != 0) {
-					i--;
-				}
-				for (; i != 0 && !is_line_term(this->buffer_[i]); i--);
-				if (i == 0) {
-					this->buffer_.insert(i, 1, static_cast<char_T>('\r'));
-				}
-				if (is_logical_line_term(this->buffer_[i])) {
-					i--;
-				}
-				this->index_ = i;
-			}
 
 # ifdef DEBUG
 			void index(size_t index) {

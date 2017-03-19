@@ -9,7 +9,7 @@
 //#include "arpterm/util.hpp"
 #include "arpterm/pty_handler.hpp"
 #include "arpterm/util/hash_map.hpp"
-#include "arpterm/cursor.hpp"
+//#include "arpterm/cursor.hpp"
 #include <thread>
 #include <cstdio>
 
@@ -58,23 +58,23 @@ int main(int argc, char *argv[]) {
 
 
 	//Glib::signal_timeout().connect(sigc::bind(&close_handler, master_fd), 1000);
-	std::string str = "macska\r\nteszta";
-	a::cursor<std::string> c(str);
-	std::cout << "----" << std::endl;
-	std::cout << str << std::endl;
-	std::cout << "index: " << c.index() << std::endl;
-	std::cout << "column_i: " << c.column_distance() << std::endl;
-	c.move_cur_up(2);
-	//c.move_to_line_end();
-	std::cout << "index: " << c.index() << std::endl;
-	std::cout << "----" << std::endl;
-	std::cout << str << std::endl;
-	std::cout << newlinify(str) << std::endl;
-	c.move_cur_right(20);
-	str[c.index()] = 'c';
-	std::cout << "----" << std::endl;
-	std::cout << newlinify(str) << std::endl;
-	std::cout << c.column_distance() << std::endl;
+//	std::string str = "macska\r\nteszta";
+//	a::cursor<std::string> c(str);
+//	std::cout << "----" << std::endl;
+//	std::cout << str << std::endl;
+//	std::cout << "index: " << c.index() << std::endl;
+//	std::cout << "column_i: " << c.column_distance() << std::endl;
+//	c.move_cur_up(2);
+//	//c.move_to_line_end();
+//	std::cout << "index: " << c.index() << std::endl;
+//	std::cout << "----" << std::endl;
+//	std::cout << str << std::endl;
+//	std::cout << newlinify(str) << std::endl;
+//	c.move_cur_right(20);
+//	str[c.index()] = 'c';
+//	std::cout << "----" << std::endl;
+//	std::cout << newlinify(str) << std::endl;
+//	std::cout << c.column_distance() << std::endl;
 	//c.move_to_line_beg();
 	//std::cout << "index: " << c.index() << std::endl;
 	//std::cout << "char: " << str[c.index()] << std::endl;
@@ -84,9 +84,9 @@ int main(int argc, char *argv[]) {
 
 
 
-	//auto& app = arpterm::MainAppBundle::get();
-	//app.init(argc,argv);
-	//return app.run();
+	auto& app = arpterm::MainAppBundle::get();
+	app.init(argc,argv);
+	return app.run();
 
 }
 
