@@ -10,6 +10,9 @@
 namespace arpterm { namespace util {
 
 
+	// Well actually this is not a hash map i mean i do not hash anything, just store key, value pairs, on a chunk of memory
+	// i used this to make sure that i never reallocate this space.
+	// TODO rename the class and file
 	template <typename key_T, typename val_T, size_t len_V>
 	class naive_map {
 
