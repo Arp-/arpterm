@@ -6,7 +6,7 @@
 #include "arpterm/util/unistd.hpp"
 #include "arpterm/util/termios.hpp"
 #include "arpterm/util/wait.hpp"
-#include "arpterm/util/hash_map.hpp"
+#include "arpterm/util/naive_map.hpp"
 #include "arpterm/util/type.hpp"
 
 
@@ -29,7 +29,7 @@ typedef struct {
 
 #define ARPTERM_MAX_THREAD_NUM 1024
 //----------------------------------------------------------------------------//
-static au::hash_map<aut::fd_t, pid_t, ARPTERM_MAX_THREAD_NUM> thread_list_;
+static au::naive_map<aut::fd_t, pid_t, ARPTERM_MAX_THREAD_NUM> thread_list_;
 //-----------------------------------------------------------------------------//
 inline void err_exit(const char* errmsg) {
 	perror(errmsg);

@@ -11,7 +11,7 @@ namespace arpterm { namespace util {
 
 
 	template <typename key_T, typename val_T, size_t len_V>
-	class hash_map {
+	class naive_map {
 
 		static_assert(std::is_same<key_T, typename std::remove_reference<key_T>::type>::value, 
 				"HASH MAP KEY MUST NOT BE REFERENCE_TYPE");
@@ -21,7 +21,7 @@ namespace arpterm { namespace util {
 		using key_container_t = std::array<key_T, len_V>;
 		using val_container_t = std::array<val_T, len_V>;
 		using set_container_t = std::array<bool, len_V>;
-		using container_t = hash_map<key_T, val_T, len_V>;
+		using container_t = naive_map<key_T, val_T, len_V>;
 
 		friend class iterator;
 
@@ -33,7 +33,7 @@ namespace arpterm { namespace util {
 			};
 			
 			public: //-- public functiosn --//
-				iterator(hash_map& map, int index): index_(index), hmap_(map) {};
+				iterator(naive_map& map, int index): index_(index), hmap_(map) {};
 				iterator(const iterator& it): index_(it.index_), hmap_(it.hmap_) {}; 
 				~iterator() = default;
 				iterator& operator++() { 
@@ -49,27 +49,27 @@ namespace arpterm { namespace util {
 
 			private: //-- private variables --//
 				int index_ = 0;
-				hash_map& hmap_;
+				naive_map& hmap_;
 		};
 
 
 		public: //-- public boilerplate --//
 
-			hash_map(): key_container_(), val_container_(), set_container_() {
+			naive_map(): key_container_(), val_container_(), set_container_() {
 				memset(&this->key_container_, 0, sizeof(this->key_container_));
 				memset(&this->val_container_, 0, sizeof(this->val_container_));
 				memset(&this->set_container_, false, sizeof(this->set_container_));
 			}
 
-			hash_map(const hash_map&) = delete;
+			naive_map(const naive_map&) = delete;
 
-			hash_map(hash_map&&) = delete;
+			naive_map(naive_map&&) = delete;
 
-			~hash_map() = default;
+			~naive_map() = default;
 
-			hash_map& operator=(const hash_map&) = delete;
+			naive_map& operator=(const naive_map&) = delete;
 
-			hash_map& operator=(hash_map&&) = delete;
+			naive_map& operator=(naive_map&&) = delete;
 
 			container_t::iterator begin() { return iterator { *this, 0 }; }
 

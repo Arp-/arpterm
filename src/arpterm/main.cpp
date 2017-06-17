@@ -8,7 +8,7 @@
 #include "arpterm/main_application.hpp"
 //#include "arpterm/util.hpp"
 #include "arpterm/pty_handler.hpp"
-#include "arpterm/util/hash_map.hpp"
+#include "arpterm/util/naive_map.hpp"
 //#include "arpterm/cursor.hpp"
 #include <thread>
 #include <cstdio>
